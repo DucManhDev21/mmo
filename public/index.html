@@ -5,22 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo Link Nhiệm Vụ - Rút Gọn Tự Động</title>
     
-    <!-- Tailwind CSS & FontAwesome -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icon CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
+    <!-- Đốm sáng trang trí nền -->
     <div class="absolute w-72 h-72 bg-white/20 rounded-full blur-3xl -top-10 -left-10 pointer-events-none"></div>
     <div class="absolute w-80 h-80 bg-purple-400/20 rounded-full blur-3xl -bottom-10 -right-10 pointer-events-none"></div>
 
+    <!-- Container Chính Glassmorphism -->
     <div class="w-full max-w-lg bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10">
         
+        <!-- Tiêu đề -->
         <div class="text-center mb-6">
             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">
                 Tạo Link Nhiệm Vụ
@@ -30,6 +39,7 @@
             </p>
         </div>
 
+        <!-- Form Tạo Link -->
         <form id="shortenForm" class="space-y-4">
             <div>
                 <label for="originalUrl" class="block text-white/90 font-medium text-xs uppercase tracking-wider mb-2">
@@ -50,6 +60,7 @@
                 </div>
             </div>
 
+            <!-- Nút Tạo Link -->
             <button 
                 type="submit" 
                 id="submitBtn"
@@ -60,11 +71,13 @@
             </button>
         </form>
 
+        <!-- Thông báo lỗi (Ẩn mặc định) -->
         <div id="errorBox" class="hidden mt-4 p-3.5 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-xs sm:text-sm flex items-center space-x-2">
             <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
             <span id="errorMsg">Đã xảy ra lỗi!</span>
         </div>
 
+        <!-- Khu vực Kết quả (Ẩn mặc định) -->
         <div id="resultBox" class="hidden mt-6 pt-6 border-t border-white/10 space-y-3">
             <label class="block text-emerald-300 font-semibold text-xs uppercase tracking-wider flex items-center space-x-1.5">
                 <i class="fa-solid fa-circle-check"></i>
@@ -78,6 +91,7 @@
                 class="w-full bg-black/20 border border-white/15 text-emerald-300 font-medium rounded-xl py-3 px-4 focus:outline-none text-sm select-all"
             >
 
+            <!-- Nhóm Nút Bấm -->
             <div class="grid grid-cols-2 gap-3 pt-1">
                 <button 
                     type="button" 
@@ -101,7 +115,11 @@
 
     </div>
 
+    <!-- JavaScript Logic -->
     <script>
+        // Đường dẫn Backend Render Node.js của bạn
+        const BACKEND_URL = 'https://mmo-backend-wnju.onrender.com/api/create-link';
+
         const shortenForm = document.getElementById('shortenForm');
         const originalUrlInput = document.getElementById('originalUrl');
         const submitBtn = document.getElementById('submitBtn');
@@ -127,8 +145,8 @@
             setLoading(true);
 
             try {
-                // Frontend gọi tới Backend API Vercel
-                const response = await fetch('/api/create-link', {
+                // Gọi API tới Render Node.js Backend
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -142,20 +160,21 @@
                     shortUrlResult.value = data.shortUrl;
                     resultBox.classList.remove('hidden');
                 } else {
-                    showError(data.message || 'Không thể tạo link rút gọn.');
+                    showError(data.message || 'Không thể tạo link rút gọn từ Máy chủ.');
                 }
             } catch (err) {
-                showError('Lỗi kết nối tới Server Backend: ' + err.message);
+                showError('Lỗi kết nối tới Server Node.js: ' + err.message);
             } finally {
                 setLoading(false);
             }
         });
 
+        // Sao chép link
         copyBtn.addEventListener('click', async () => {
             if (!shortUrlResult.value) return;
 
             try {
-                await navigator.clipboard.writeText(shortUrlResult.value);
+                await navigator.clipboardwriteText(shortUrlResult.value);
                 copyBtnText.textContent = 'Đã sao chép!';
                 setTimeout(() => { copyBtnText.textContent = 'Sao chép'; }, 2000);
             } catch (err) {
@@ -166,6 +185,7 @@
             }
         });
 
+        // Mở link tab mới
         openBtn.addEventListener('click', () => {
             if (shortUrlResult.value) {
                 window.open(shortUrlResult.value, '_blank');
@@ -175,7 +195,7 @@
         function setLoading(isLoading) {
             if (isLoading) {
                 submitBtn.disabled = true;
-                btnText.textContent = 'Đang tạo link...';
+                btnText.textContent = 'Đang xử lý...';
                 btnIcon.className = 'fa-solid fa-spinner animate-spin';
             } else {
                 submitBtn.disabled = false;
