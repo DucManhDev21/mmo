@@ -71,13 +71,13 @@
             </button>
         </form>
 
-        <!-- Thông báo lỗi (Khóa mặc định) -->
+        <!-- Thông báo lỗi (Ẩn mặc định) -->
         <div id="errorBox" class="hidden mt-4 p-3.5 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-xs sm:text-sm flex items-center space-x-2">
             <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
             <span id="errorMsg">Đã xảy ra lỗi!</span>
         </div>
 
-        <!-- Khu vực Kết quả (Khóa mặc định) -->
+        <!-- Khu vực Kết quả (Ẩn mặc định) -->
         <div id="resultBox" class="hidden mt-6 pt-6 border-t border-white/10 space-y-3">
             <label class="block text-emerald-300 font-semibold text-xs uppercase tracking-wider flex items-center space-x-1.5">
                 <i class="fa-solid fa-circle-check"></i>
@@ -117,6 +117,9 @@
 
     <!-- JavaScript Logic -->
     <script>
+        // Đường dẫn Cloudflare Worker của bạn
+        const WORKER_URL = 'https://mmo.tranvanminh123hihi.workers.dev';
+
         const shortenForm = document.getElementById('shortenForm');
         const originalUrlInput = document.getElementById('originalUrl');
         const submitBtn = document.getElementById('submitBtn');
@@ -132,7 +135,7 @@
         const copyBtnText = document.getElementById('copyBtnText');
         const openBtn = document.getElementById('openBtn');
 
-        // Xử lý gửi Form gọi Serverless Function
+        // Xử lý sự kiện Submit Form
         shortenForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const url = originalUrlInput.value.trim();
@@ -143,8 +146,8 @@
             setLoading(true);
 
             try {
-                // Gọi API Serverless được khởi tạo trong api/create-link.js
-                const response = await fetch('/api/create-link', {
+                // Gọi tới Cloudflare Worker
+                const response = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -158,10 +161,10 @@
                     shortUrlResult.value = data.shortUrl;
                     resultBox.classList.remove('hidden');
                 } else {
-                    showError(data.message || 'Không thể tạo link rút gọn.');
+                    showError(data.message || 'Không thể tạo link rút gọn từ Worker.');
                 }
             } catch (err) {
-                showError('Lỗi kết nối tới máy chủ: ' + err.message);
+                showError('Lỗi kết nối tới Worker: ' + err.message);
             } finally {
                 setLoading(false);
             }
