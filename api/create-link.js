@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    // Thiết lập Header CORS
+    // Cấu hình CORS Header
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -27,35 +27,29 @@ export default async function handler(req, res) {
         if (!apiToken) {
             return res.status(500).json({ 
                 success: false, 
-                message: 'Chưa cấu hình biến môi trường LINK4M_API_TOKEN trên Vercel' 
+                message: 'Chưa cấu hình biến LINK4M_API_TOKEN trên Vercel' 
             });
         }
 
-        // Tạo URL API Link4M
         const targetApi = `https://link4m.co/api-shorten?api=${encodeURIComponent(apiToken)}&url=${encodeURIComponent(url)}`;
-
-        // Gọi API Link4M kèm Header giả lập Trình duyệt Chrome để tránh bị Cloudflare chặn HTML
-        const response = await fetch(targetApi, {
-            method: 'GET',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
-                'Cache-Control': 'no-cache'
-            }
-        });
-
-        const rawText = await response.text();
         let data;
-        
+
         try {
-            data = JSON.parse(rawText);
-        } catch (e) {
-            // Trường hợp vẫn bị Cloudflare chặn trả về HTML
-            return res.status(502).json({
-                success: false,
-                message: 'Link4M đang bật khiên bảo vệ Cloudflare chặn IP Serverless. Vui lòng kiểm tra lại API Token hoặc thử lại sau.'
+            // Thử gọi trực tiếp Link4M từ Server Backend
+            const response = await fetch(targetApi, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Accept': 'application/json, text/plain, */*'
+                }
             });
+            
+            const rawText = await response.text();
+            data = JSON.parse(rawText);
+        } catch (err) {
+            // Nếu bị Cloudflare chặn IP Vercel, Backend sẽ tự động gọi qua Proxy phụ
+            const proxyApi = `https://corsproxy.io/?${encodeURIComponent(targetApi)}`;
+            const proxyResponse = await fetch(proxyApi);
+            data = await proxyResponse.json();
         }
 
         const shortUrl = data.shortenedUrl || data.url || data.shortedUrl;
@@ -65,14 +59,14 @@ export default async function handler(req, res) {
         } else {
             return res.status(400).json({ 
                 success: false, 
-                message: data.message || 'Lỗi từ Link4M (Kiểm tra lại API Token hoặc liên kết nhập vào)' 
+                message: data.message || 'Lỗi từ Link4M (Kiểm tra lại Token hoặc Link nhập vào)' 
             });
         }
 
     } catch (error) {
         return res.status(500).json({ 
             success: false, 
-            message: 'Lỗi máy chủ: ' + error.message 
+            message: 'Lỗi máy chủ Backend: ' + error.message 
         });
     }
 }
