@@ -31,20 +31,30 @@ export default async function handler(req, res) {
             });
         }
 
-        // Gọi API Link4M
+        // Tạo URL API Link4M
         const targetApi = `https://link4m.co/api-shorten?api=${encodeURIComponent(apiToken)}&url=${encodeURIComponent(url)}`;
-        const response = await fetch(targetApi);
 
-        // Đọc phản hồi dạng text trước để tránh crash JSON
+        // Gọi API Link4M kèm Header giả lập Trình duyệt Chrome để tránh bị Cloudflare chặn HTML
+        const response = await fetch(targetApi, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Cache-Control': 'no-cache'
+            }
+        });
+
         const rawText = await response.text();
         let data;
         
         try {
             data = JSON.parse(rawText);
         } catch (e) {
-            return res.status(500).json({
+            // Trường hợp vẫn bị Cloudflare chặn trả về HTML
+            return res.status(502).json({
                 success: false,
-                message: `Phản hồi từ Link4M không hợp lệ. Nội dung: ${rawText.substring(0, 100)}`
+                message: 'Link4M đang bật khiên bảo vệ Cloudflare chặn IP Serverless. Vui lòng kiểm tra lại API Token hoặc thử lại sau.'
             });
         }
 
@@ -55,7 +65,7 @@ export default async function handler(req, res) {
         } else {
             return res.status(400).json({ 
                 success: false, 
-                message: data.message || 'Lỗi API Link4M (Vui lòng kiểm tra lại API Key hoặc Link gốc)' 
+                message: data.message || 'Lỗi từ Link4M (Kiểm tra lại API Token hoặc liên kết nhập vào)' 
             });
         }
 
