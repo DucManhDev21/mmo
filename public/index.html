@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo Link Nhiệm Vụ - Rút Gọn Tự Động</title>
+    <title>Tạo Link Rút Gọn Nhiệm Vụ - Link4M</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -20,92 +20,95 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
-    <!-- Đốm sáng trang trí nền -->
-    <div class="absolute w-72 h-72 bg-white/20 rounded-full blur-3xl -top-10 -left-10 pointer-events-none"></div>
-    <div class="absolute w-80 h-80 bg-purple-400/20 rounded-full blur-3xl -bottom-10 -right-10 pointer-events-none"></div>
+    <!-- Đốm sáng hiệu ứng nền -->
+    <div class="absolute w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl -top-20 -left-20 pointer-events-none"></div>
+    <div class="absolute w-96 h-96 bg-purple-500/20 rounded-full blur-3xl -bottom-20 -right-20 pointer-events-none"></div>
 
-    <!-- Container Chính Glassmorphism -->
-    <div class="w-full max-w-lg bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10">
+    <!-- Container Chính -->
+    <div class="w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10">
         
-        <!-- Tiêu đề -->
+        <!-- Header -->
         <div class="text-center mb-6">
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 mb-3 border border-indigo-500/30">
+                <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Tạo Link Nhiệm Vụ
             </h1>
-            <p class="text-white/70 text-sm mt-1">
-                Nhập liên kết để tạo đường dẫn rút gọn an toàn
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                Rút gọn liên kết nhanh chóng qua hệ thống Link4M
             </p>
         </div>
 
-        <!-- Form Tạo Link -->
+        <!-- Form Nhập -->
         <form id="shortenForm" class="space-y-4">
             <div>
-                <label for="originalUrl" class="block text-white/90 font-medium text-xs uppercase tracking-wider mb-2">
-                    URL Gốc <span class="text-red-300">*</span>
+                <label for="originalUrl" class="block text-slate-300 font-semibold text-xs uppercase tracking-wider mb-2">
+                    URL Gốc <span class="text-rose-400">*</span>
                 </label>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-white/40">
-                        <i class="fa-solid fa-link"></i>
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                        <i class="fa-solid fa-link text-sm"></i>
                     </span>
                     <input 
-                        type="url" 
+                        type="text" 
                         id="originalUrl" 
                         required 
-                        placeholder="https://example.com/file-down-load..."
-                        class="w-full bg-white/5 border border-white/20 text-white placeholder-white/40 rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/10 transition duration-200 text-sm"
+                        placeholder="https://example.com/duong-dan-goc..."
+                        class="w-full bg-slate-950/60 border border-slate-700/80 text-white placeholder-slate-500 rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition duration-200 text-sm"
                         autocomplete="off"
                     >
                 </div>
             </div>
 
-            <!-- Nút Tạo Link -->
+            <!-- Nút Submit -->
             <button 
                 type="submit" 
                 id="submitBtn"
-                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl py-3.5 px-6 shadow-lg hover:shadow-indigo-500/30 transition duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base cursor-pointer disabled:opacity-50"
+                class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-bold rounded-xl py-3.5 px-6 shadow-lg shadow-indigo-600/30 transition duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                <i id="btnIcon" class="fa-solid fa-wand-magic-sparkles"></i>
-                <span id="btnText">Tạo Link</span>
+                <i id="btnIcon" class="fa-solid fa-bolt"></i>
+                <span id="btnText">Tạo Link Ngay</span>
             </button>
         </form>
 
-        <!-- Thông báo lỗi (Ẩn mặc định) -->
-        <div id="errorBox" class="hidden mt-4 p-3.5 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-xs sm:text-sm flex items-center space-x-2">
-            <i class="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+        <!-- Khung Thông Báo Lỗi -->
+        <div id="errorBox" class="hidden mt-4 p-3.5 bg-rose-500/15 border border-rose-500/30 rounded-xl text-rose-300 text-xs sm:text-sm flex items-start space-x-2.5">
+            <i class="fa-solid fa-circle-exclamation flex-shrink-0 mt-0.5"></i>
             <span id="errorMsg">Đã xảy ra lỗi!</span>
         </div>
 
-        <!-- Khu vực Kết quả (Ẩn mặc định) -->
+        <!-- Khung Kết Quả -->
         <div id="resultBox" class="hidden mt-6 pt-6 border-t border-white/10 space-y-3">
-            <label class="block text-emerald-300 font-semibold text-xs uppercase tracking-wider flex items-center space-x-1.5">
+            <label class="block text-emerald-400 font-semibold text-xs uppercase tracking-wider flex items-center space-x-1.5">
                 <i class="fa-solid fa-circle-check"></i>
-                <span>Link đã tạo thành công</span>
+                <span>Link rút gọn của bạn:</span>
             </label>
             
             <input 
                 type="text" 
                 id="shortUrlResult" 
                 readonly 
-                class="w-full bg-black/20 border border-white/15 text-emerald-300 font-medium rounded-xl py-3 px-4 focus:outline-none text-sm select-all"
+                class="w-full bg-slate-950 border border-slate-700 text-emerald-300 font-semibold rounded-xl py-3 px-4 focus:outline-none text-sm select-all cursor-pointer"
             >
 
-            <!-- Nhóm Nút Bấm -->
+            <!-- Nhóm Nút Thao Tác -->
             <div class="grid grid-cols-2 gap-3 pt-1">
                 <button 
                     type="button" 
                     id="copyBtn"
-                    class="bg-emerald-500/80 hover:bg-emerald-500 text-white font-medium rounded-xl py-2.5 px-4 transition duration-200 flex items-center justify-center space-x-2 text-sm shadow-md cursor-pointer"
+                    class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl py-2.5 px-4 transition duration-200 flex items-center justify-center space-x-2 text-sm shadow-md cursor-pointer"
                 >
-                    <i class="fa-regular fa-copy"></i>
+                    <i id="copyIcon" class="fa-regular fa-copy"></i>
                     <span id="copyBtnText">Sao chép</span>
                 </button>
 
                 <button 
                     type="button" 
                     id="openBtn"
-                    class="bg-white/20 hover:bg-white/30 text-white font-medium rounded-xl py-2.5 px-4 border border-white/20 transition duration-200 flex items-center justify-center space-x-2 text-sm shadow-md cursor-pointer"
+                    class="bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl py-2.5 px-4 border border-white/10 transition duration-200 flex items-center justify-center space-x-2 text-sm shadow-md cursor-pointer"
                 >
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                     <span>Mở tab mới</span>
@@ -117,8 +120,7 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // Đường dẫn Backend Render Node.js của bạn
-        const BACKEND_URL = 'https://mmo-backend-wnju.onrender.com/api/create-link';
+        const API_TOKEN = '6a4f55d76ae7ad25c375ce6e';
 
         const shortenForm = document.getElementById('shortenForm');
         const originalUrlInput = document.getElementById('originalUrl');
@@ -133,59 +135,103 @@
         const shortUrlResult = document.getElementById('shortUrlResult');
         const copyBtn = document.getElementById('copyBtn');
         const copyBtnText = document.getElementById('copyBtnText');
+        const copyIcon = document.getElementById('copyIcon');
         const openBtn = document.getElementById('openBtn');
 
+        // Hàm gọi API Link4M sử dụng cơ chế Dự phòng Proxy Kép
+        async function fetchLink4M(targetUrl) {
+            const targetApi = `https://link4m.co/api-shorten?api=${API_TOKEN}&url=${encodeURIComponent(targetUrl)}`;
+
+            // Proxy 1: Corsproxy.io
+            try {
+                const proxy1 = `https://corsproxy.io/?${encodeURIComponent(targetApi)}`;
+                const res = await fetch(proxy1);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && (data.status === 'success' || data.shortenedUrl || data.url || data.shortedUrl)) {
+                        return data;
+                    }
+                }
+            } catch (e) {
+                console.warn('Proxy 1 không phản hồi, đang thử Proxy 2...');
+            }
+
+            // Proxy 2: Allorigins.win (Dự phòng khi Proxy 1 lỗi)
+            try {
+                const proxy2 = `https://api.allorigins.win/get?url=${encodeURIComponent(targetApi)}`;
+                const res = await fetch(proxy2);
+                if (res.ok) {
+                    const wrapper = await res.json();
+                    const data = JSON.parse(wrapper.contents);
+                    return data;
+                }
+            } catch (e) {
+                console.warn('Proxy 2 gặp lỗi...');
+            }
+
+            throw new Error('Tất cả máy chủ trung gian đều không kết nối được. Vui lòng thử lại sau ít phút.');
+        }
+
+        // Xử lý sự kiện Submit Form
         shortenForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const url = originalUrlInput.value.trim();
-
+            
+            let url = originalUrlInput.value.trim();
             if (!url) return;
+
+            // Tự động sửa nếu thiếu protocol http:// hoặc https://
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+                originalUrlInput.value = url;
+            }
 
             hideAlerts();
             setLoading(true);
 
             try {
-                // Gọi API tới Render Node.js Backend
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url: url })
-                });
+                const data = await fetchLink4M(url);
+                const shortUrl = data.shortenedUrl || data.url || data.shortedUrl;
 
-                const data = await response.json();
-
-                if (data.success && data.shortUrl) {
-                    shortUrlResult.value = data.shortUrl;
+                if (data.status === 'success' || shortUrl) {
+                    shortUrlResult.value = shortUrl;
                     resultBox.classList.remove('hidden');
                 } else {
-                    showError(data.message || 'Không thể tạo link rút gọn từ Máy chủ.');
+                    showError(data.message || 'Link4M từ chối tạo link. Vui lòng kiểm tra lại đường dẫn.');
                 }
             } catch (err) {
-                showError('Lỗi kết nối tới Server Node.js: ' + err.message);
+                showError(err.message || 'Không thể tạo link rút gọn.');
             } finally {
                 setLoading(false);
             }
         });
 
-        // Sao chép link
+        // Xử lý nút Sao Chép
         copyBtn.addEventListener('click', async () => {
             if (!shortUrlResult.value) return;
 
             try {
-                await navigator.clipboardwriteText(shortUrlResult.value);
-                copyBtnText.textContent = 'Đã sao chép!';
-                setTimeout(() => { copyBtnText.textContent = 'Sao chép'; }, 2000);
+                await navigator.clipboard.writeText(shortUrlResult.value);
+                setCopySuccess();
             } catch (err) {
                 shortUrlResult.select();
                 document.execCommand('copy');
-                copyBtnText.textContent = 'Đã sao chép!';
-                setTimeout(() => { copyBtnText.textContent = 'Sao chép'; }, 2000);
+                setCopySuccess();
             }
         });
 
-        // Mở link tab mới
+        function setCopySuccess() {
+            copyBtnText.textContent = 'Đã sao chép!';
+            copyIcon.className = 'fa-solid fa-check';
+            copyBtn.classList.replace('bg-emerald-600', 'bg-emerald-500');
+
+            setTimeout(() => {
+                copyBtnText.textContent = 'Sao chép';
+                copyIcon.className = 'fa-regular fa-copy';
+                copyBtn.classList.replace('bg-emerald-500', 'bg-emerald-600');
+            }, 2000);
+        }
+
+        // Xử lý nút Mở Tab Mới
         openBtn.addEventListener('click', () => {
             if (shortUrlResult.value) {
                 window.open(shortUrlResult.value, '_blank');
@@ -195,12 +241,12 @@
         function setLoading(isLoading) {
             if (isLoading) {
                 submitBtn.disabled = true;
-                btnText.textContent = 'Đang xử lý...';
+                btnText.textContent = 'Đang tạo link...';
                 btnIcon.className = 'fa-solid fa-spinner animate-spin';
             } else {
                 submitBtn.disabled = false;
-                btnText.textContent = 'Tạo Link';
-                btnIcon.className = 'fa-solid fa-wand-magic-sparkles';
+                btnText.textContent = 'Tạo Link Ngay';
+                btnIcon.className = 'fa-solid fa-bolt';
             }
         }
 
