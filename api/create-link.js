@@ -37,9 +37,9 @@ export default async function handler(req, res) {
     // 4. Tạo URL đích gửi tới trang nhanma
     const destUrl = `https://nhanmathuong.vercel.app?token=${token}`;
 
-    // Gọi API rút gọn link của Link4m
+    // Gọi API rút gọn link chuẩn của Link4m (api-shortener)
     const link4mRes = await fetch(
-      `https://link4m.co/api-pack/process?api=${process.env.LINK4M_API_KEY}&url=${encodeURIComponent(destUrl)}`
+      `https://link4m.co/api-shortener?api=${process.env.LINK4M_API_KEY}&url=${encodeURIComponent(destUrl)}`
     );
 
     if (!link4mRes.ok) {
