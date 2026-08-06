@@ -892,109 +892,129 @@
     };
     document.getElementById('btnLogout').onclick = window.handleLogoutBtn;
 
-    // ==========================================
-    // NHIỆM VỤ RÚT GỌN LINK (+200đ)
-    // ==========================================
-    const btnGetLink = document.getElementById('btnGetLink');
-    const btnCopyLink = document.getElementById('btnCopyLink');
-    const btnVerify = document.getElementById('btnVerify');
-    const shortUrl = document.getElementById('shortUrl');
-    const linkBox = document.getElementById('linkBox');
-    const inputCode = document.getElementById('inputCode');
-    const statusMsg = document.getElementById('statusMsg');
+ // ==========================================
+// NHIỆM VỤ RÚT GỌN LINK (+200đ)
+// ==========================================
+const btnGetLink = document.getElementById('btnGetLink');
+const btnCopyLink = document.getElementById('btnCopyLink');
+const btnVerify = document.getElementById('btnVerify');
+const shortUrl = document.getElementById('shortUrl');
+const linkBox = document.getElementById('linkBox');
+const inputCode = document.getElementById('inputCode');
+const statusMsg = document.getElementById('statusMsg');
 
-    // 1. Lấy Link Nhiệm Vụ
-    btnGetLink.onclick = async () => {
-      if (!window.checkAuthGuard()) return;
+// 1. Lấy Link Nhiệm Vụ
+btnGetLink.onclick = async () => {
+  if (!window.checkAuthGuard?.()) return;
+
+  const uid = window.currentUser?.uid;
+  if (!uid) {
+    window.showToast?.("Vui lòng đăng nhập lại!", "warning");
+    return;
+  }
+
+  btnGetLink.innerText = "Đang tạo link...";
+  btnGetLink.disabled = true;
+
+  try {
+    const response = await fetch('/api/create-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.url) {
+      shortUrl.textContent = data.url;
+      linkBox.classList.remove('hidden');
+      window.showToast?.("Khởi tạo link nhiệm vụ thành công!", "success");
+    } else {
+      throw new Error(data.message || data.error || "Không thể tạo link rút gọn.");
+    }
+  } catch (error) {
+    console.error("Lỗi tạo link:", error);
+    window.showToast?.("Lỗi: " + error.message, "warning");
+  } finally {
+    btnGetLink.innerText = "1. Lấy Link Nhiệm Vụ";
+    btnGetLink.disabled = false;
+  }
+};
+
+// 2. Sao chép Link
+btnCopyLink.onclick = async () => {
+  const textToCopy = shortUrl.textContent.trim();
+  if (!textToCopy) return;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(textToCopy);
+    } else {
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+    window.showToast?.("Đã chép Link! Hãy dán vào tab mới để vượt.", "success");
+  } catch (err) {
+    console.error("Lỗi sao chép:", err);
+    window.showToast?.("Bôi đen link để sao chép thủ công!", "warning");
+  }
+};
+
+// 3. Xác Nhận Mã
+btnVerify.onclick = async () => {
+  if (!window.checkAuthGuard?.()) return;
+
+  const uid = window.currentUser?.uid;
+  const code = inputCode.value.trim().toUpperCase();
+
+  if (!code) {
+    window.showToast?.("Vui lòng nhập mã từ trang xác nhận!", "warning");
+    return;
+  }
+
+  statusMsg.className = "text-center text-sm font-bold text-amber-400";
+  statusMsg.textContent = "Hệ thống đang check mã bảo mật...";
+  btnVerify.disabled = true;
+
+  try {
+    const response = await fetch('/api/verify-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, uid })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      window.currentBalance = data.newBalance;
       
-      btnGetLink.innerText = "Đang tạo link...";
-      btnGetLink.disabled = true;
-
-      try {
-        const response = await fetch('/api/create-link', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ uid: window.currentUser.uid })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.url) {
-          shortUrl.innerText = data.url;
-          linkBox.classList.remove('hidden');
-          window.showToast("Khởi tạo link nhiệm vụ thành công!", "success");
-        } else {
-          throw new Error(data.message || data.error || "Không thể tạo link rút gọn từ hệ thống.");
-        }
-
-      } catch (error) {
-        console.error("Lỗi tạo link:", error);
-        window.showToast("Lỗi: " + error.message, "warning");
-      } finally {
-        btnGetLink.innerText = "1. Lấy Link Nhiệm Vụ";
-        btnGetLink.disabled = false;
-      }
-    };
-
-    // 2. Sao chép Link
-    btnCopyLink.onclick = () => {
-      if (shortUrl.innerText) {
-        navigator.clipboard.writeText(shortUrl.innerText);
-        window.showToast("Đã chép Link! Hãy dán vào tab mới để vượt.", "success");
-      }
-    };
-
-    // 3. Xác Nhận Mã
-    btnVerify.onclick = async () => {
-      if (!window.checkAuthGuard()) return;
-      
-      const code = inputCode.value.trim().toUpperCase();
-      if (!code) {
-        window.showToast("Vui lòng nhập mã từ trang xác nhận!", "warning");
-        return;
+      if (typeof updateBalanceDisplay === 'function') {
+        updateBalanceDisplay();
+      } else if (typeof window.updateBalanceDisplay === 'function') {
+        window.updateBalanceDisplay();
       }
 
-      statusMsg.className = "text-center text-sm font-bold text-amber-400";
-      statusMsg.innerText = "Hệ thống đang check mã bảo mật...";
-      btnVerify.disabled = true;
+      statusMsg.className = "text-center text-sm font-bold text-emerald-400";
+      statusMsg.textContent = data.message || "Mã hợp lệ!";
+      inputCode.value = "";
+      window.showToast?.("Xác thực mã thành công! +200 VNĐ", "success");
+    } else {
+      throw new Error(data.error || "Mã không hợp lệ hoặc đã được sử dụng.");
+    }
+  } catch (err) {
+    console.error("Lỗi xác minh mã:", err);
+    statusMsg.className = "text-center text-sm font-bold text-rose-400";
+    statusMsg.textContent = err.message || "Có lỗi xảy ra, vui lòng thử lại!";
+    window.showToast?.(err.message || "Lỗi xác thực mã!", "warning");
+  } finally {
+    btnVerify.disabled = false;
+  }
+};
 
-      try {
-        const response = await fetch('/api/verify-code', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            code: code, 
-            uid: window.currentUser.uid 
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          window.currentBalance = data.newBalance;
-          updateBalanceDisplay(); // Gọi trực tiếp hàm đã khai báo scope
-
-          statusMsg.className = "text-center text-sm font-bold text-emerald-400";
-          statusMsg.innerText = data.message;
-          inputCode.value = "";
-          window.showToast("Xác thực mã thành công! +200 VNĐ", "success");
-        } else {
-          throw new Error(data.error || "Mã không hợp lệ hoặc đã được sử dụng.");
-        }
-
-      } catch (err) {
-        console.error("Lỗi xác minh mã:", err);
-        statusMsg.className = "text-center text-sm font-bold text-rose-400";
-        statusMsg.innerText = err.message || "Có lỗi xảy ra, vui lòng thử lại!";
-        window.showToast(err.message || "Lỗi xác thực mã!", "warning");
-      } finally {
-        btnVerify.disabled = false;
-      }
-    };
 
     // ==========================================
     // NHIỆM VỤ PHỤ BỔ SUNG & ĐIỂM DANH BẢO MẬT
