@@ -895,7 +895,7 @@
     };
     document.getElementById('btnLogout').onclick = window.handleLogoutBtn;
 
-    // ==========================================
+     // ==========================================
     // NHIỆM VỤ RÚT GỌN LINK (+200đ)
     // ==========================================
     const btnGetLink = document.getElementById('btnGetLink');
@@ -908,17 +908,39 @@
 
     btnGetLink.onclick = async () => {
       if (!window.checkAuthGuard()) return;
-      btnGetLink.innerText = "Đang khởi tạo...";
+      
+      btnGetLink.innerText = "Đang tạo link...";
       btnGetLink.disabled = true;
 
-      setTimeout(() => {
-        shortUrl.innerText = "https://link4m.co/kiemtien-task";
-        linkBox.classList.remove('hidden');
-        window.showToast("Khởi tạo link nhiệm vụ thành công!", "success");
+      try {
+        // Gọi đến API Serverless Function (/api/create-link) trên Vercel
+        const response = await fetch('/api/create-link', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ uid: window.currentUser.uid })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.url) {
+          shortUrl.innerText = data.url;
+          linkBox.classList.remove('hidden');
+          window.showToast("Khởi tạo link nhiệm vụ thành công!", "success");
+        } else {
+          throw new Error(data.message || data.error || "Không thể tạo link rút gọn từ hệ thống.");
+        }
+
+      } catch (error) {
+        console.error("Lỗi tạo link:", error);
+        window.showToast("Lỗi: " + error.message, "warning");
+      } finally {
         btnGetLink.innerText = "1. Lấy Link Nhiệm Vụ";
         btnGetLink.disabled = false;
-      }, 800);
+      }
     };
+
 
     btnCopyLink.onclick = () => {
       if (shortUrl.innerText) {
