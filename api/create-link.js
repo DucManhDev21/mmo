@@ -2,60 +2,50 @@ import { db } from './init-firebase.js';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
-  // 1. Cấu hình CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed. Hãy dùng phương thức POST.' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     if (!process.env.LINK4M_API_KEY) {
-      throw new Error('Thiếu biến môi trường LINK4M_API_KEY trên Vercel');
+      throw new Error('Thiếu biến môi trường LINK4M_API_KEY');
     }
 
-    // 2. Tạo Token phiên làm việc (Hết hạn sau 10 phút)
+    // 1. Tạo Token phiên & Mã xác minh 6 chữ số
     const token = crypto.randomBytes(16).toString('hex');
-    const expiresAt = Date.now() + 10 * 60 * 1000;
+    const secretCode = 'TDM' + Math.floor(100000 + Math.random() * 900000); // Ví dụ: TDM654321
+    const expiresAt = Date.now() + 10 * 60 * 1000; // Hết hạn sau 10 phút
 
-    await db.collection('sessions').doc(token).set({
-      used: false,
+    // 2. Ghi Mã vào collection 'codes' để verify-code.js kiểm tra
+    await db.collection('codes').doc(secretCode).set({
+      isUsed: false,
       expiresAt: expiresAt,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      token: token
     });
 
-    // 3. TRỎ ĐẾN INDEX.HTML ĐỂ LINK4M KHÔNG LÀM MẤT PARAMETER TOKEN
-    const destUrl = `https://nhanmathuong-nine.vercel.app/index.html?token=${token}`;
+    // 3. Đưa code vào tham số URL để trang đích hiển thị cho người dùng copy
+    const destUrl = `https://nhanmathuong-nine.vercel.app/index.html?code=${secretCode}`;
 
-    // 4. Gọi API rút gọn link Link4m
+    // 4. Rút gọn link bằng Link4m
     const link4mRes = await fetch(
       `https://link4m.co/api-shorten/v2?api=${process.env.LINK4M_API_KEY}&url=${encodeURIComponent(destUrl)}`
     );
 
-    if (!link4mRes.ok) {
-      throw new Error(`Link4m API phản hồi lỗi status: ${link4mRes.status}`);
-    }
+    if (!link4mRes.ok) throw new Error(`Link4m API lỗi: ${link4mRes.status}`);
 
     const data = await link4mRes.json();
-    const shortUrl = data.shortenedUrl || data.url || data.shortened_url || (typeof data === 'string' ? data : null);
+    const shortUrl = data.shortenedUrl || data.url || data.shortened_url;
 
-    if (!shortUrl) {
-      throw new Error('Không nhận được link rút gọn hợp lệ từ Link4m');
-    }
+    if (!shortUrl) throw new Error('Không nhận được link rút gọn từ Link4m');
 
     return res.status(200).json({ url: shortUrl });
 
   } catch (err) {
     console.error('Lỗi create-link:', err);
-    return res.status(500).json({ 
-      error: 'Lỗi khởi tạo nhiệm vụ phía Server', 
-      message: err.message 
-    });
+    return res.status(500).json({ error: 'Lỗi Server', message: err.message });
   }
 }
