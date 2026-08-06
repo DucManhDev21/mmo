@@ -30,12 +30,10 @@ export default async function handler(req, res) {
       createdAt: Date.now()
     });
 
-    // 3. TỰ ĐỘNG LẤY DOMAIN HIỆN TẠI (Giải pháp sửa lỗi triệt để)
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers['x-forwarded-host'] || req.headers.host;
-    const destUrl = `${protocol}://${host}/?token=${token}`;
+    // 3. TRỎ CHÍNH XÁC VỀ TRANG NHẬN MÃ (nhanmathuong-nine)
+    const destUrl = `https://nhanmathuong-nine.vercel.app/?token=${token}`;
 
-    // 4. Gọi API rút gọn link (Phiên bản v2 chính xác của Link4m)
+    // 4. Gọi API rút gọn link Link4m
     const link4mRes = await fetch(
       `https://link4m.co/api-shorten/v2?api=${process.env.LINK4M_API_KEY}&url=${encodeURIComponent(destUrl)}`
     );
