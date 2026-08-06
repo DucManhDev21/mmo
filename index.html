@@ -12,12 +12,12 @@
 
     <!-- BƯỚC 1: TẠO LINK -->
     <div class="space-y-3 border-b border-slate-700 pb-5">
-      <button id="btnGetLink" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition duration-200">
+      <button type="button" id="btnGetLink" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition duration-200">
         1. Lấy Link Nhiệm Vụ
       </button>
       <div id="linkBox" class="hidden bg-slate-950 p-3 rounded-xl text-center space-y-2 border border-slate-800">
         <p id="shortUrl" class="text-xs text-cyan-300 font-mono break-all"></p>
-        <button id="btnCopyLink" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded border border-slate-600 font-medium">
+        <button type="button" id="btnCopyLink" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded border border-slate-600 font-medium">
           Sao chép Link
         </button>
       </div>
@@ -26,7 +26,7 @@
     <!-- BƯỚC 2: XÁC MINH MÃ -->
     <div class="space-y-3">
       <input id="inputCode" type="text" placeholder="NHẬP MÃ TỪ TRANG NHANMA..." class="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl uppercase font-mono text-center text-slate-100 placeholder-slate-500 focus:outline-none focus:border-fuchsia-500">
-      <button id="btnVerify" class="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3 rounded-xl transition duration-200">
+      <button type="button" id="btnVerify" class="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3 rounded-xl transition duration-200">
         2. Xác Nhận Mã
       </button>
       <p id="statusMsg" class="text-center text-xs font-bold min-h-[20px]"></p>
@@ -48,14 +48,17 @@
       btnGetLink.disabled = true;
 
       try {
-        const res = await fetch('/api/create-link', { method: 'POST' });
+        const res = await fetch('/api/create-link', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
         const data = await res.json();
 
         if (res.ok && data.url) {
           shortUrl.innerText = data.url;
           linkBox.classList.remove('hidden');
         } else {
-          alert(data.error || "Lỗi tạo link!");
+          alert(data.error || data.message || "Lỗi tạo link!");
         }
       } catch (err) {
         alert("Không thể kết nối đến Server API!");
@@ -96,7 +99,7 @@
           inputCode.value = "";
         } else {
           statusMsg.className = "text-center text-xs font-bold text-rose-400";
-          statusMsg.innerText = data.error || "Mã không hợp lệ!";
+          statusMsg.innerText = data.error || data.message || "Mã không hợp lệ!";
         }
       } catch (err) {
         statusMsg.className = "text-center text-xs font-bold text-rose-400";
