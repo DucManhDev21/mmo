@@ -30,8 +30,10 @@ export default async function handler(req, res) {
       createdAt: Date.now()
     });
 
-    // 3. Tạo URL đích gửi tới trang nhanma
-    const destUrl = `https://nhanmathuong.vercel.app?token=${token}`;
+    // 3. TỰ ĐỘNG LẤY DOMAIN HIỆN TẠI (Giải pháp sửa lỗi triệt để)
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const destUrl = `${protocol}://${host}/?token=${token}`;
 
     // 4. Gọi API rút gọn link (Phiên bản v2 chính xác của Link4m)
     const link4mRes = await fetch(
