@@ -30,8 +30,8 @@ export default async function handler(req, res) {
       createdAt: Date.now()
     });
 
-    // 3. TRỎ CHÍNH XÁC VỀ TRANG NHẬN MÃ (nhanmathuong-nine)
-    const destUrl = `https://nhanmathuong-nine.vercel.app/?token=${token}`;
+    // 3. TRỎ ĐẾN INDEX.HTML ĐỂ LINK4M KHÔNG LÀM MẤT PARAMETER TOKEN
+    const destUrl = `https://nhanmathuong-nine.vercel.app/index.html?token=${token}`;
 
     // 4. Gọi API rút gọn link Link4m
     const link4mRes = await fetch(
