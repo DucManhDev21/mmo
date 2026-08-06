@@ -614,22 +614,23 @@
 
   <!-- FIREBASE SDK & APP LOGIC -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
+    // Cập nhật Firebase SDK về phiên bản ổn định 10.12.0
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword, 
       signInWithEmailAndPassword, 
       signOut, 
       onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
       getFirestore, 
       doc, 
       setDoc, 
       getDoc, 
       updateDoc 
-    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // Cấu hình Firebase
     const firebaseConfig = {
@@ -666,19 +667,19 @@
       if (userBalanceDisplayEl) userBalanceDisplayEl.innerText = window.currentBalance.toLocaleString('vi-VN');
       if (accBalanceEl) accBalanceEl.innerText = window.currentBalance.toLocaleString('vi-VN');
     }
+    window.updateBalanceDisplay = updateBalanceDisplay;
 
-    // Cập nhật số dư trên Database (Firestore)
-    window.updateBalanceInDB = async (amountChange) => {
-      window.currentBalance += amountChange;
+    // Cập nhật số dư vào Firestore
+    window.updateBalanceInDB = async function(amountToAdd) {
+      if (!window.currentUser) return;
+      window.currentBalance += amountToAdd;
       updateBalanceDisplay();
       
-      if (window.currentUser) {
-        try {
-          const userRef = doc(db, "users", window.currentUser.uid);
-          await updateDoc(userRef, { balance: window.currentBalance });
-        } catch (err) {
-          console.error("Lỗi đồng bộ Firebase:", err);
-        }
+      try {
+        const userRef = doc(db, "users", window.currentUser.uid);
+        await updateDoc(userRef, { balance: window.currentBalance });
+      } catch (err) {
+        console.error("Lỗi đồng bộ Firebase:", err);
       }
     };
 
@@ -824,7 +825,6 @@
           window.showToast("Đăng nhập thành công!", "success");
         } else {
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-          // Tạo document user mới với số dư = 0
           await setDoc(doc(db, "users", userCredential.user.uid), {
             email: email,
             balance: 0,
@@ -855,17 +855,14 @@
         userInfo.classList.add('flex');
         document.getElementById('userEmail').innerText = user.email;
         
-        // Tab Account update
         accEmailEl.innerText = user.email;
         accUidEl.innerText = user.uid;
 
-        // Lấy số dư từ DB
         try {
           const docSnap = await getDoc(doc(db, "users", user.uid));
           if (docSnap.exists()) {
             window.currentBalance = docSnap.data().balance || 0;
           } else {
-            // Đề phòng user được tạo từ console
             await setDoc(doc(db, "users", user.uid), { email: user.email, balance: 0 });
             window.currentBalance = 0;
           }
@@ -895,7 +892,7 @@
     };
     document.getElementById('btnLogout').onclick = window.handleLogoutBtn;
 
-     // ==========================================
+    // ==========================================
     // NHIỆM VỤ RÚT GỌN LINK (+200đ)
     // ==========================================
     const btnGetLink = document.getElementById('btnGetLink');
@@ -906,6 +903,7 @@
     const inputCode = document.getElementById('inputCode');
     const statusMsg = document.getElementById('statusMsg');
 
+    // 1. Lấy Link Nhiệm Vụ
     btnGetLink.onclick = async () => {
       if (!window.checkAuthGuard()) return;
       
@@ -913,7 +911,6 @@
       btnGetLink.disabled = true;
 
       try {
-        // Gọi đến API Serverless Function (/api/create-link) trên Vercel
         const response = await fetch('/api/create-link', {
           method: 'POST',
           headers: {
@@ -941,7 +938,7 @@
       }
     };
 
-
+    // 2. Sao chép Link
     btnCopyLink.onclick = () => {
       if (shortUrl.innerText) {
         navigator.clipboard.writeText(shortUrl.innerText);
@@ -949,8 +946,10 @@
       }
     };
 
+    // 3. Xác Nhận Mã
     btnVerify.onclick = async () => {
       if (!window.checkAuthGuard()) return;
+      
       const code = inputCode.value.trim().toUpperCase();
       if (!code) {
         window.showToast("Vui lòng nhập mã từ trang xác nhận!", "warning");
@@ -958,32 +957,83 @@
       }
 
       statusMsg.className = "text-center text-sm font-bold text-amber-400";
-      statusMsg.innerText = "Hệ thống đang check mã...";
+      statusMsg.innerText = "Hệ thống đang check mã bảo mật...";
       btnVerify.disabled = true;
 
-      // Giả lập delay API check mã
-      setTimeout(async () => {
-        await window.updateBalanceInDB(200);
-        statusMsg.className = "text-center text-sm font-bold text-emerald-400";
-        statusMsg.innerText = "Chuẩn xác! Bạn được +200₫ vào ví.";
-        inputCode.value = "";
-        window.showToast("Xác thực mã thành công! +200 VNĐ", "success");
+      try {
+        const response = await fetch('/api/verify-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            code: code, 
+            uid: window.currentUser.uid 
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          window.currentBalance = data.newBalance;
+          updateBalanceDisplay(); // Gọi trực tiếp hàm đã khai báo scope
+
+          statusMsg.className = "text-center text-sm font-bold text-emerald-400";
+          statusMsg.innerText = data.message;
+          inputCode.value = "";
+          window.showToast("Xác thực mã thành công! +200 VNĐ", "success");
+        } else {
+          throw new Error(data.error || "Mã không hợp lệ hoặc đã được sử dụng.");
+        }
+
+      } catch (err) {
+        console.error("Lỗi xác minh mã:", err);
+        statusMsg.className = "text-center text-sm font-bold text-rose-400";
+        statusMsg.innerText = err.message || "Có lỗi xảy ra, vui lòng thử lại!";
+        window.showToast(err.message || "Lỗi xác thực mã!", "warning");
+      } finally {
         btnVerify.disabled = false;
-      }, 1200);
+      }
     };
 
     // ==========================================
-    // NHIỆM VỤ PHỤ BỔ SUNG
+    // NHIỆM VỤ PHỤ BỔ SUNG & ĐIỂM DANH BẢO MẬT
     // ==========================================
     window.executeGenericTask = function(taskName) {
       if (!window.checkAuthGuard()) return;
       window.showToast(`Đã mở "${taskName}". Vui lòng hoàn thành để nhận tiền!`, "info");
     };
 
+    // Kiểm tra & thực hiện điểm danh an toàn bằng Firestore
     window.executeDailyAttendance = async function() {
       if (!window.checkAuthGuard()) return;
-      await window.updateBalanceInDB(100);
-      window.showToast("Điểm danh nhận +100 VNĐ thành công!", "success");
+
+      const today = new Date().toISOString().split('T')[0]; // Định dạng ngày: YYYY-MM-DD
+      const userDocRef = doc(db, "users", window.currentUser.uid);
+
+      try {
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          if (userData.lastAttendanceDate === today) {
+            window.showToast("Bạn đã điểm danh hôm nay rồi! Hãy quay lại vào ngày mai.", "warning");
+            return;
+          }
+        }
+
+        const newBalance = window.currentBalance + 100;
+        await updateDoc(userDocRef, {
+          balance: newBalance,
+          lastAttendanceDate: today
+        });
+
+        window.currentBalance = newBalance;
+        updateBalanceDisplay();
+        window.showToast("Điểm danh thành công! Bạn nhận được +100 VNĐ", "success");
+      } catch (error) {
+        console.error("Lỗi điểm danh:", error);
+        window.showToast("Lỗi điểm danh: " + error.message, "warning");
+      }
     };
 
     // ==========================================
@@ -1011,7 +1061,7 @@
       spinnerWithdraw.classList.remove('hidden');
       btnSubmitWithdraw.disabled = true;
 
-      // Giả lập API trừ tiền & tạo lệnh rút trên Admin
+      // Giả lập API trừ tiền & tạo lệnh rút
       setTimeout(async () => {
         await window.updateBalanceInDB(-amount);
         
