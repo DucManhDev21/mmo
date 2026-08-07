@@ -9,26 +9,39 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  const { recaptchaToken, uid } = req.body || {};
+
+  // 1. Verify reCAPTCHA token với Google
+  if (process.env.RECAPTCHA_SECRET_KEY) {
+    if (!recaptchaToken) {
+      return res.status(400).json({ error: 'Thiếu xác minh reCAPTCHA' });
+    }
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
+    const captchaRes = await fetch(verifyUrl, { method: 'POST' });
+    const captchaData = await captchaRes.json();
+
+    if (!captchaData.success) {
+      return res.status(400).json({ error: 'Xác minh reCAPTCHA thất bại, vui lòng thử lại!' });
+    }
+  }
+
   try {
     if (!process.env.LINK4M_API_KEY) {
       throw new Error('Thiếu biến môi trường LINK4M_API_KEY');
     }
 
-    // 1. Tạo Token phiên xác thực
     const token = crypto.randomBytes(16).toString('hex');
-    const expiresAt = Date.now() + 10 * 60 * 1000; // Hết hạn sau 10 phút
+    const expiresAt = Date.now() + 10 * 60 * 1000;
 
-    // 2. Lưu thông tin phiên vào collection 'sessions'
     await db.collection('sessions').doc(token).set({
+      uid: uid || null,
       used: false,
       createdAt: Date.now(),
       expiresAt: expiresAt
     });
 
-    // 3. Chuẩn hóa URL trang đích chứa ?token= (đúng định dạng index.html yêu cầu)
     const destUrl = `https://nhanmathuong-nine.vercel.app/index.html?token=${token}`;
 
-    // 4. Rút gọn link bằng Link4m
     const link4mRes = await fetch(
       `https://link4m.co/api-shorten/v2?api=${process.env.LINK4M_API_KEY}&url=${encodeURIComponent(destUrl)}`
     );
