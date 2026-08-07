@@ -15,6 +15,9 @@
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
+  <!-- Google reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
   <!-- Custom Styles for Glassmorphism & Neon Glow -->
   <style>
     body {
@@ -242,7 +245,7 @@
             <div class="flex items-start space-x-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/50">
               <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 font-black text-lg">3</div>
               <p>
-                <strong class="text-white block mb-1 text-lg">Rút Tiền Siêu Thấp:</strong> Min rút chỉ từ <strong class="text-emerald-400">10.000 VNĐ</strong>. Hỗ trợ chuyển khoản Ngân hàng, MoMo, hoặc rút tiền mã hóa USDT (Mạng TRC20).
+                <strong class="text-white block mb-1 text-lg">Rút Tiền Siêu Thấp:</strong> Min rút chỉ từ <strong class="text-emerald-400">10.000 VNĐ</strong>. Hỗ trợ chuyển khoản Ngân hàng, MoMo, Đổi thẻ cào hoặc USDT.
               </p>
             </div>
             <div class="flex items-start space-x-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/50">
@@ -307,7 +310,7 @@
             </div>
           </div>
           <span class="px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center whitespace-nowrap">
-            <i class="fa-solid fa-circle-check mr-1.5"></i> Auto
+            <i class="fa-solid fa-circle-check mr-1.5"></i> Lịch Sử 30 Phút
           </span>
         </div>
 
@@ -315,9 +318,17 @@
           <!-- BƯỚC 1 -->
           <div class="space-y-4 bg-slate-950/60 p-6 rounded-3xl border border-slate-800/80 shadow-inner hover:border-cyan-500/30 transition-colors">
             <span class="text-sm font-black text-cyan-400 uppercase tracking-widest flex items-center"><div class="w-2 h-2 bg-cyan-400 rounded-full mr-2"></div> Bước 1: Lấy Link</span>
-            <button type="button" id="btnGetLink" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 border border-slate-600">
-              1. Lấy Link Nhiệm Vụ
-            </button>
+            
+            <!-- reCAPTCHA Task -->
+            <form id="formGetLink" class="space-y-4">
+              <div class="flex justify-center bg-black/30 p-2 rounded-xl">
+                <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+              </div>
+              <button type="submit" id="btnGetLink" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 border border-slate-600">
+                1. Xác Minh & Lấy Link
+              </button>
+            </form>
+
             <div id="linkBox" class="hidden space-y-3 pt-2">
               <p id="shortUrl" class="text-sm text-cyan-300 font-mono break-all p-4 bg-black/50 rounded-xl border border-cyan-500/40 text-center"></p>
               <button type="button" id="btnCopyLink" class="w-full text-sm bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-cyan-600/20 transition-colors">
@@ -326,9 +337,13 @@
             </div>
           </div>
 
-          <!-- BƯỚC 2 -->
-          <div class="space-y-4 bg-slate-950/60 p-6 rounded-3xl border border-slate-800/80 shadow-inner hover:border-purple-500/30 transition-colors">
-            <span class="text-sm font-black text-purple-400 uppercase tracking-widest flex items-center"><div class="w-2 h-2 bg-purple-400 rounded-full mr-2"></div> Bước 2: Xác Nhận</span>
+          <!-- BƯỚC 2 (Được ẩn đi cho đến khi hoàn thành Bước 1) -->
+          <div id="step2Container" class="hidden space-y-4 bg-slate-950/60 p-6 rounded-3xl border border-slate-800/80 shadow-inner hover:border-purple-500/30 transition-colors">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-black text-purple-400 uppercase tracking-widest flex items-center"><div class="w-2 h-2 bg-purple-400 rounded-full mr-2"></div> Bước 2: Xác Nhận</span>
+              <span class="text-xs text-rose-400 font-mono font-bold bg-rose-500/10 px-2 py-1 rounded border border-rose-500/30"><i class="fa-regular fa-clock mr-1"></i>Hết hạn: <span id="taskTimer">30:00</span></span>
+            </div>
+            
             <input id="inputCode" type="text" placeholder="NHẬP MÃ TỪ TRANG ĐÍCH..." class="w-full glass-input p-4 rounded-xl uppercase font-mono text-center text-sm font-bold placeholder-slate-500 tracking-wider">
             <button type="button" id="btnVerify" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-600/30 transition duration-300 hover:scale-[1.02]">
               2. Xác Nhận Mã Nhận Tiền
@@ -387,8 +402,8 @@
       </div>
     </section>
 
-    <!-- TAB 3: MỤC RÚT TIỀN (WITHDRAWAL SECTION) -->
-    <section id="tab-withdraw" class="tab-content hidden-tab max-w-4xl mx-auto space-y-10">
+    <!-- TAB 3: MỤC RÚT TIỀN & MUA THẺ CÀO -->
+    <section id="tab-withdraw" class="tab-content hidden-tab max-w-5xl mx-auto space-y-10">
       
       <div class="text-center space-y-3" data-aos="fade-down">
         <span class="text-emerald-400 font-bold tracking-widest uppercase text-sm">Cashout</span>
@@ -396,35 +411,35 @@
         <p class="text-slate-400 text-base">Hạn mức rút tối thiểu siêu thấp chỉ từ <span class="text-emerald-400 font-black">10.000 VNĐ</span></p>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-8">
-        <!-- ATM CARD GLASSMORPHISM -->
-        <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden border border-cyan-500/40 neon-box-glow flex flex-col justify-between h-full min-h-[250px]" data-aos="zoom-in" data-aos-duration="800">
-          <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-cyan-500/20 rounded-full blur-[80px] pointer-events-none"></div>
-          
-          <div class="flex justify-between items-start mb-8 relative z-10">
-            <div>
-              <span class="text-xs text-slate-300 font-mono uppercase tracking-widest block mb-1">TDM REWARDS BALANCE</span>
-              <span class="text-lg font-black text-white tracking-widest">MEMBER CARD</span>
-            </div>
-            <i class="fa-brands fa-cc-visa text-4xl text-white/50"></i>
+      <!-- THẺ ATM INFO -->
+      <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden border border-cyan-500/40 neon-box-glow flex flex-col justify-between h-full min-h-[250px] max-w-2xl mx-auto" data-aos="zoom-in" data-aos-duration="800">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-cyan-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+        
+        <div class="flex justify-between items-start mb-8 relative z-10">
+          <div>
+            <span class="text-xs text-slate-300 font-mono uppercase tracking-widest block mb-1">TDM REWARDS BALANCE</span>
+            <span class="text-lg font-black text-white tracking-widest">MEMBER CARD</span>
           </div>
+          <i class="fa-brands fa-cc-visa text-4xl text-white/50"></i>
+        </div>
 
-          <div class="space-y-1 mb-6 relative z-10">
-            <span class="text-sm text-slate-300 font-medium block">Số dư hiện tại</span>
-            <div class="flex items-baseline space-x-2">
-              <span id="userBalanceDisplay" class="text-5xl font-black text-emerald-400 tracking-tighter drop-shadow-lg">0</span>
-              <span class="text-lg font-black text-emerald-500">VNĐ</span>
-            </div>
-          </div>
-
-          <div class="flex justify-between items-end text-xs text-slate-300 font-mono pt-4 border-t border-slate-700/50 relative z-10">
-            <span>MIN RÚT: 10,000đ</span>
-            <span class="text-cyan-400 font-bold bg-cyan-500/10 px-2 py-1 rounded"><i class="fa-solid fa-bolt mr-1"></i>Duyệt Nhanh</span>
+        <div class="space-y-1 mb-6 relative z-10">
+          <span class="text-sm text-slate-300 font-medium block">Số dư hiện tại</span>
+          <div class="flex items-baseline space-x-2">
+            <span id="userBalanceDisplay" class="text-5xl font-black text-emerald-400 tracking-tighter drop-shadow-lg">0</span>
+            <span class="text-lg font-black text-emerald-500">VNĐ</span>
           </div>
         </div>
 
-        <!-- FORM RÚT TIỀN -->
-        <div class="glass-panel p-8 rounded-[2rem] space-y-6 border border-slate-700/50" data-aos="fade-left" data-aos-duration="800">
+        <div class="flex justify-between items-end text-xs text-slate-300 font-mono pt-4 border-t border-slate-700/50 relative z-10">
+          <span>MIN RÚT: 10,000đ</span>
+          <span class="text-cyan-400 font-bold bg-cyan-500/10 px-2 py-1 rounded"><i class="fa-solid fa-bolt mr-1"></i>Duyệt Nhanh</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- FORM RÚT TIỀN NGÂN HÀNG -->
+        <div class="glass-panel p-8 rounded-[2rem] space-y-6 border border-slate-700/50" data-aos="fade-right" data-aos-duration="800">
           <h3 class="text-xl font-black text-white border-b border-slate-800 pb-4 flex items-center">
             <i class="fa-solid fa-money-bill-wave text-emerald-400 mr-3"></i> Lập Lệnh Rút
           </h3>
@@ -455,11 +470,66 @@
               <input type="number" id="withdrawAmount" min="10000" step="1000" required placeholder="Ví dụ: 20000" class="w-full glass-input p-3.5 rounded-xl text-lg font-bold text-emerald-400">
             </div>
 
+            <div class="flex justify-center bg-black/30 p-2 rounded-xl">
+              <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+            </div>
+
             <button type="submit" id="btnSubmitWithdraw" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 text-lg">
               <span id="txtWithdraw">XÁC NHẬN RÚT</span>
               <i id="spinnerWithdraw" class="fa-solid fa-spinner fa-spin hidden"></i>
             </button>
           </form>
+        </div>
+
+        <!-- FORM MUA THẺ CÀO -->
+        <div class="glass-panel p-8 rounded-[2rem] space-y-6 border border-slate-700/50" data-aos="fade-left" data-aos-duration="800">
+          <h3 class="text-xl font-black text-white border-b border-slate-800 pb-4 flex items-center">
+            <i class="fa-solid fa-sim-card text-cyan-400 mr-3"></i> Cửa Hàng Thẻ Cào
+          </h3>
+
+          <form id="formBuyCard" class="space-y-5">
+            <div>
+              <label class="text-xs font-bold text-slate-300 mb-2 block uppercase tracking-wider">Chọn Nhà Mạng</label>
+              <select id="cardNetwork" class="w-full glass-input p-3.5 rounded-xl text-sm font-medium">
+                <option value="VIETTEL" class="bg-slate-900">VIETTEL</option>
+                <option value="VINAPHONE" class="bg-slate-900">VINAPHONE</option>
+                <option value="MOBIFONE" class="bg-slate-900">MOBIFONE</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-300 mb-2 block uppercase tracking-wider">Mệnh Giá Thẻ</label>
+              <select id="cardAmount" class="w-full glass-input p-3.5 rounded-xl text-lg font-bold text-cyan-400">
+                <option value="10000" class="bg-slate-900">10,000 VNĐ</option>
+                <option value="20000" class="bg-slate-900">20,000 VNĐ</option>
+                <option value="50000" class="bg-slate-900">50,000 VNĐ</option>
+                <option value="100000" class="bg-slate-900">100,000 VNĐ</option>
+              </select>
+            </div>
+
+            <div class="flex justify-center bg-black/30 p-2 rounded-xl">
+              <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+            </div>
+
+            <button type="submit" id="btnSubmitBuyCard" class="w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white font-black py-4 rounded-xl shadow-lg shadow-cyan-600/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 text-lg">
+              <span id="txtBuyCard">ĐỔI THẺ NGAY</span>
+              <i id="spinnerBuyCard" class="fa-solid fa-spinner fa-spin hidden"></i>
+            </button>
+          </form>
+
+          <!-- KHUNG HIỂN THỊ KẾT QUẢ THẺ MUA THÀNH CÔNG -->
+          <div id="cardResultBox" class="hidden bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-2xl space-y-3 mt-4 text-center">
+            <h4 class="text-emerald-400 font-bold uppercase text-sm"><i class="fa-solid fa-check-circle mr-1"></i> Mua thẻ thành công</h4>
+            <div class="space-y-2 text-sm text-slate-200">
+              <p><strong>Loại thẻ:</strong> <span id="resCardNetwork" class="text-cyan-300"></span></p>
+              <p><strong>Mệnh giá:</strong> <span id="resCardAmount" class="text-cyan-300"></span></p>
+              <div class="bg-black/50 p-3 rounded-lg border border-slate-700 font-mono mt-2">
+                <p>Số Seri: <strong class="text-white text-base" id="resCardSerial"></strong></p>
+                <p>Mã Thẻ: <strong class="text-amber-400 text-lg" id="resCardCode"></strong></p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">Hãy lưu lại thông tin thẻ vì hệ thống sẽ xóa sau khi bạn làm mới trang.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -604,6 +674,10 @@
           </div>
         </div>
 
+        <div class="flex justify-center bg-black/30 p-2 rounded-xl">
+          <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+        </div>
+
         <button type="submit" id="btnSubmitAuth" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 rounded-xl shadow-lg shadow-cyan-600/30 transition-transform hover:scale-[1.02] text-sm tracking-wider uppercase mt-2">
           XÁC NHẬN ĐĂNG NHẬP
         </button>
@@ -683,6 +757,14 @@
       }
     };
 
+    // Helper Reset reCAPTCHA (Tránh lỗi expired widget)
+    function resetAllRecaptchas() {
+      if(typeof grecaptcha !== 'undefined' && grecaptcha.reset) {
+        const widgets = document.querySelectorAll('.g-recaptcha');
+        widgets.forEach((_, i) => grecaptcha.reset(i));
+      }
+    }
+
     // ==========================================
     // ROUTER SPA LOGIC
     // ==========================================
@@ -726,7 +808,6 @@
       window.navigateTo(window.location.pathname, false);
     });
     
-    // Khởi chạy router ngay khi tải
     document.addEventListener('DOMContentLoaded', () => {
       window.navigateTo(window.location.pathname, false);
     });
@@ -798,21 +879,25 @@
     document.getElementById('btnOpenAuthMobile').onclick = window.openAuthModal;
     document.getElementById('btnCloseAuth').onclick = () => authModal.classList.add('hidden');
 
-    // Nút Bắt Đầu CTA
     window.handleStartTaskCTA = function() {
       if (!window.checkAuthGuard()) return;
       window.navigateTo('/nhiemvu');
     };
 
-    // Mobile Menu Toggle
     document.getElementById('btnMobileMenu').onclick = () => {
       document.getElementById('mobileMenu').classList.toggle('hidden');
     };
 
-    // Form Submit (Đăng nhập / Đăng ký)
     authForm.onsubmit = async (e) => {
       e.preventDefault();
       authError.innerText = "";
+      
+      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
+      if(!recaptchaResponse) {
+        authError.innerText = "Vui lòng xác minh Captcha để tiếp tục!";
+        return;
+      }
+
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value;
       
@@ -820,6 +905,9 @@
       btnSubmitAuth.innerText = "ĐANG XỬ LÝ...";
 
       try {
+        // [CẦN BACKEND] Đoạn này bạn có thể gọi API verify reCAPTCHA tại đây
+        // const vRes = await fetch('/api/verify-recaptcha', { method: 'POST', body: JSON.stringify({ token: recaptchaResponse }) }); ...
+
         if (isLoginMode) {
           await signInWithEmailAndPassword(auth, email, password);
           window.showToast("Đăng nhập thành công!", "success");
@@ -835,15 +923,16 @@
         }
         authModal.classList.add('hidden');
         authForm.reset();
+        resetAllRecaptchas();
       } catch (err) {
         authError.innerText = err.message.replace("Firebase: ", "");
+        resetAllRecaptchas();
       } finally {
         btnSubmitAuth.disabled = false;
         btnSubmitAuth.innerText = isLoginMode ? "XÁC NHẬN ĐĂNG NHẬP" : "TẠO TÀI KHOẢN MỚI";
       }
     };
 
-    // Lắng nghe thay đổi trạng thái User
     onAuthStateChanged(auth, async (user) => {
       window.currentUser = user;
       const btnOpenAuth = document.getElementById('btnOpenAuth');
@@ -892,143 +981,174 @@
     };
     document.getElementById('btnLogout').onclick = window.handleLogoutBtn;
 
- // ==========================================
-// NHIỆM VỤ RÚT GỌN LINK (+200đ)
-// ==========================================
-const btnGetLink = document.getElementById('btnGetLink');
-const btnCopyLink = document.getElementById('btnCopyLink');
-const btnVerify = document.getElementById('btnVerify');
-const shortUrl = document.getElementById('shortUrl');
-const linkBox = document.getElementById('linkBox');
-const inputCode = document.getElementById('inputCode');
-const statusMsg = document.getElementById('statusMsg');
-
-// 1. Lấy Link Nhiệm Vụ
-btnGetLink.onclick = async () => {
-  if (!window.checkAuthGuard?.()) return;
-
-  const uid = window.currentUser?.uid;
-  if (!uid) {
-    window.showToast?.("Vui lòng đăng nhập lại!", "warning");
-    return;
-  }
-
-  btnGetLink.innerText = "Đang tạo link...";
-  btnGetLink.disabled = true;
-
-  try {
-    const response = await fetch('/api/create-link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid })
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.url) {
-      shortUrl.textContent = data.url;
-      linkBox.classList.remove('hidden');
-      window.showToast?.("Khởi tạo link nhiệm vụ thành công!", "success");
-    } else {
-      throw new Error(data.message || data.error || "Không thể tạo link rút gọn.");
-    }
-  } catch (error) {
-    console.error("Lỗi tạo link:", error);
-    window.showToast?.("Lỗi: " + error.message, "warning");
-  } finally {
-    btnGetLink.innerText = "1. Lấy Link Nhiệm Vụ";
-    btnGetLink.disabled = false;
-  }
-};
-
-// 2. Sao chép Link
-btnCopyLink.onclick = async () => {
-  const textToCopy = shortUrl.textContent.trim();
-  if (!textToCopy) return;
-
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(textToCopy);
-    } else {
-      const textArea = document.createElement("textarea");
-      textArea.value = textToCopy;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-    }
-    window.showToast?.("Đã chép Link! Hãy dán vào tab mới để vượt.", "success");
-  } catch (err) {
-    console.error("Lỗi sao chép:", err);
-    window.showToast?.("Bôi đen link để sao chép thủ công!", "warning");
-  }
-};
-
-// 3. Xác Nhận Mã
-btnVerify.onclick = async () => {
-  if (!window.checkAuthGuard?.()) return;
-
-  const uid = window.currentUser?.uid;
-  const code = inputCode.value.trim().toUpperCase();
-
-  if (!code) {
-    window.showToast?.("Vui lòng nhập mã từ trang xác nhận!", "warning");
-    return;
-  }
-
-  statusMsg.className = "text-center text-sm font-bold text-amber-400";
-  statusMsg.textContent = "Hệ thống đang check mã bảo mật...";
-  btnVerify.disabled = true;
-
-  try {
-    const response = await fetch('/api/verify-code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, uid })
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      window.currentBalance = data.newBalance;
-      
-      if (typeof updateBalanceDisplay === 'function') {
-        updateBalanceDisplay();
-      } else if (typeof window.updateBalanceDisplay === 'function') {
-        window.updateBalanceDisplay();
-      }
-
-      statusMsg.className = "text-center text-sm font-bold text-emerald-400";
-      statusMsg.textContent = data.message || "Mã hợp lệ!";
-      inputCode.value = "";
-      window.showToast?.("Xác thực mã thành công! +200 VNĐ", "success");
-    } else {
-      throw new Error(data.error || "Mã không hợp lệ hoặc đã được sử dụng.");
-    }
-  } catch (err) {
-    console.error("Lỗi xác minh mã:", err);
-    statusMsg.className = "text-center text-sm font-bold text-rose-400";
-    statusMsg.textContent = err.message || "Có lỗi xảy ra, vui lòng thử lại!";
-    window.showToast?.(err.message || "Lỗi xác thực mã!", "warning");
-  } finally {
-    btnVerify.disabled = false;
-  }
-};
-
 
     // ==========================================
-    // NHIỆM VỤ PHỤ BỔ SUNG & ĐIỂM DANH BẢO MẬT
+    // NHIỆM VỤ RÚT GỌN LINK & ĐẾM NGƯỢC 30 PHÚT
+    // ==========================================
+    const formGetLink = document.getElementById('formGetLink');
+    const btnGetLink = document.getElementById('btnGetLink');
+    const btnCopyLink = document.getElementById('btnCopyLink');
+    const btnVerify = document.getElementById('btnVerify');
+    const shortUrl = document.getElementById('shortUrl');
+    const linkBox = document.getElementById('linkBox');
+    const step2Container = document.getElementById('step2Container');
+    const inputCode = document.getElementById('inputCode');
+    const statusMsg = document.getElementById('statusMsg');
+    
+    let taskTimerInterval;
+
+    function startTaskTimer() {
+      let timeLeft = 30 * 60; // 30 phút
+      const timerEl = document.getElementById('taskTimer');
+      clearInterval(taskTimerInterval);
+      
+      taskTimerInterval = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        let s = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${m}:${s}`;
+        
+        if(timeLeft <= 0) {
+          clearInterval(taskTimerInterval);
+          window.showToast("Link nhiệm vụ đã quá thời hạn 30 phút. Vui lòng lấy link mới!", "warning");
+          step2Container.classList.add('hidden');
+          linkBox.classList.add('hidden');
+        }
+      }, 1000);
+    }
+
+    // 1. Lấy Link Nhiệm Vụ (Yêu cầu reCAPTCHA)
+    formGetLink.onsubmit = async (e) => {
+      e.preventDefault();
+      if (!window.checkAuthGuard?.()) return;
+
+      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
+      if(!recaptchaResponse) {
+        window.showToast?.("Vui lòng xác minh Captcha trước khi lấy link!", "warning");
+        return;
+      }
+
+      const uid = window.currentUser?.uid;
+      btnGetLink.innerText = "Đang tạo link...";
+      btnGetLink.disabled = true;
+
+      try {
+        // Gọi API tạo link (cần truyền token để backend verify)
+        const response = await fetch('/api/create-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, recaptchaToken: recaptchaResponse })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.url) {
+          shortUrl.textContent = data.url;
+          linkBox.classList.remove('hidden');
+          step2Container.classList.remove('hidden'); // HIỆN BƯỚC 2
+          
+          window.showToast?.("Khởi tạo link nhiệm vụ thành công!", "success");
+          startTaskTimer(); // Bắt đầu đếm ngược 30 phút
+          
+        } else {
+          throw new Error(data.message || data.error || "Không thể tạo link rút gọn.");
+        }
+      } catch (error) {
+        console.error("Lỗi tạo link:", error);
+        window.showToast?.("Lỗi: " + error.message, "warning");
+      } finally {
+        btnGetLink.innerText = "1. Xác Minh & Lấy Link";
+        btnGetLink.disabled = false;
+        resetAllRecaptchas(); // Xoá xác minh cũ
+      }
+    };
+
+    // 2. Sao chép Link
+    btnCopyLink.onclick = async () => {
+      const textToCopy = shortUrl.textContent.trim();
+      if (!textToCopy) return;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(textToCopy);
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
+        window.showToast?.("Đã chép Link! Hãy dán vào tab mới để vượt.", "success");
+      } catch (err) {
+        window.showToast?.("Bôi đen link để sao chép thủ công!", "warning");
+      }
+    };
+
+    // 3. Xác Nhận Mã
+    btnVerify.onclick = async () => {
+      if (!window.checkAuthGuard?.()) return;
+
+      const uid = window.currentUser?.uid;
+      const code = inputCode.value.trim().toUpperCase();
+
+      if (!code) {
+        window.showToast?.("Vui lòng nhập mã từ trang xác nhận!", "warning");
+        return;
+      }
+
+      statusMsg.className = "text-center text-sm font-bold text-amber-400";
+      statusMsg.textContent = "Hệ thống đang check mã bảo mật...";
+      btnVerify.disabled = true;
+
+      try {
+        const response = await fetch('/api/verify-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, uid })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          window.currentBalance = data.newBalance;
+          updateBalanceDisplay();
+
+          statusMsg.className = "text-center text-sm font-bold text-emerald-400";
+          statusMsg.textContent = data.message || "Mã hợp lệ!";
+          inputCode.value = "";
+          window.showToast?.("Xác thực mã thành công! +200 VNĐ", "success");
+          
+          // Hoàn thành thì đóng bộ đếm & form
+          clearInterval(taskTimerInterval);
+          setTimeout(() => {
+            step2Container.classList.add('hidden');
+            linkBox.classList.add('hidden');
+            statusMsg.textContent = "";
+          }, 3000);
+          
+        } else {
+          throw new Error(data.error || "Mã không hợp lệ, quá hạn 30 phút hoặc đã dùng.");
+        }
+      } catch (err) {
+        statusMsg.className = "text-center text-sm font-bold text-rose-400";
+        statusMsg.textContent = err.message || "Có lỗi xảy ra, vui lòng thử lại!";
+        window.showToast?.(err.message || "Lỗi xác thực mã!", "warning");
+      } finally {
+        btnVerify.disabled = false;
+      }
+    };
+
+    // ==========================================
+    // NHIỆM VỤ PHỤ BỔ SUNG & ĐIỂM DANH
     // ==========================================
     window.executeGenericTask = function(taskName) {
       if (!window.checkAuthGuard()) return;
       window.showToast(`Đã mở "${taskName}". Vui lòng hoàn thành để nhận tiền!`, "info");
     };
 
-    // Kiểm tra & thực hiện điểm danh an toàn bằng Firestore
     window.executeDailyAttendance = async function() {
       if (!window.checkAuthGuard()) return;
-
-      const today = new Date().toISOString().split('T')[0]; // Định dạng ngày: YYYY-MM-DD
+      const today = new Date().toISOString().split('T')[0];
       const userDocRef = doc(db, "users", window.currentUser.uid);
 
       try {
@@ -1040,28 +1160,28 @@ btnVerify.onclick = async () => {
             return;
           }
         }
-
         const newBalance = window.currentBalance + 100;
-        await updateDoc(userDocRef, {
-          balance: newBalance,
-          lastAttendanceDate: today
-        });
-
+        await updateDoc(userDocRef, { balance: newBalance, lastAttendanceDate: today });
         window.currentBalance = newBalance;
         updateBalanceDisplay();
         window.showToast("Điểm danh thành công! Bạn nhận được +100 VNĐ", "success");
       } catch (error) {
-        console.error("Lỗi điểm danh:", error);
         window.showToast("Lỗi điểm danh: " + error.message, "warning");
       }
     };
 
     // ==========================================
-    // RÚT TIỀN (MIN 10,000đ)
+    // RÚT TIỀN NGÂN HÀNG (YÊU CẦU reCAPTCHA)
     // ==========================================
     document.getElementById('formWithdraw').onsubmit = async (e) => {
       e.preventDefault();
       if (!window.checkAuthGuard()) return;
+
+      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
+      if(!recaptchaResponse) {
+        window.showToast("Vui lòng xác minh Captcha trước khi rút tiền!", "warning");
+        return;
+      }
 
       const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
       if (isNaN(amount) || amount < 10000) {
@@ -1081,17 +1201,78 @@ btnVerify.onclick = async () => {
       spinnerWithdraw.classList.remove('hidden');
       btnSubmitWithdraw.disabled = true;
 
-      // Giả lập API trừ tiền & tạo lệnh rút
-      setTimeout(async () => {
+      try {
+        // [CẦN BACKEND] Gửi lệnh API ở đây, kèm token Captcha
+        // await fetch('/api/withdraw', ...)
+
         await window.updateBalanceInDB(-amount);
-        
+        window.showToast(`Lệnh rút ${amount.toLocaleString('vi-VN')} VNĐ đã được chuyển tới Admin!`, "success");
+        e.target.reset();
+      } catch(err) {
+        window.showToast("Có lỗi xảy ra, thử lại sau!", "warning");
+      } finally {
         txtWithdraw.innerText = "XÁC NHẬN RÚT";
         spinnerWithdraw.classList.add('hidden');
         btnSubmitWithdraw.disabled = false;
+        resetAllRecaptchas();
+      }
+    };
+
+    // ==========================================
+    // ĐỔI THẺ CÀO (YÊU CẦU reCAPTCHA)
+    // ==========================================
+    document.getElementById('formBuyCard').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!window.checkAuthGuard()) return;
+
+      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
+      if(!recaptchaResponse) {
+        window.showToast("Vui lòng xác minh Captcha để đổi thẻ!", "warning");
+        return;
+      }
+
+      const network = document.getElementById('cardNetwork').value;
+      const amount = parseInt(document.getElementById('cardAmount').value, 10);
+
+      if (amount > window.currentBalance) {
+        window.showToast(`Số dư không đủ! Cần thêm ${(amount - window.currentBalance).toLocaleString('vi-VN')} VNĐ`, "warning");
+        return;
+      }
+
+      const txtBuyCard = document.getElementById('txtBuyCard');
+      const spinnerBuyCard = document.getElementById('spinnerBuyCard');
+      const btnSubmitBuyCard = document.getElementById('btnSubmitBuyCard');
+
+      txtBuyCard.innerText = "ĐANG XỬ LÝ...";
+      spinnerBuyCard.classList.remove('hidden');
+      btnSubmitBuyCard.disabled = true;
+
+      try {
+        // [CẦN BACKEND] API xử lý đổi thẻ (Trừ tiền, lấy thẻ, báo admin)
+        // const response = await fetch('/api/buy-card', { body: JSON.stringify({ uid, network, amount, token: recaptchaResponse }) });
+        // const data = await response.json();
         
-        window.showToast(`Lệnh rút ${amount.toLocaleString('vi-VN')} VNĐ đã được chuyển tới Admin!`, "success");
-        document.getElementById('formWithdraw').reset();
-      }, 2000);
+        // Mô phỏng Thành Công:
+        await window.updateBalanceInDB(-amount);
+        
+        // Hiện dữ liệu thẻ cho User
+        document.getElementById('resCardNetwork').innerText = network;
+        document.getElementById('resCardAmount').innerText = amount.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('resCardSerial').innerText = "1000" + Math.floor(Math.random() * 9999999999); // Fake Data
+        document.getElementById('resCardCode').innerText = "0" + Math.floor(Math.random() * 999999999999);    // Fake Data
+        
+        document.getElementById('cardResultBox').classList.remove('hidden');
+        window.showToast("Đổi thẻ thành công! Đã trừ " + amount.toLocaleString('vi-VN') + " VNĐ", "success");
+        e.target.reset();
+
+      } catch(err) {
+        window.showToast("Lỗi hệ thống hoặc kho hết thẻ. Vui lòng liên hệ Admin!", "warning");
+      } finally {
+        txtBuyCard.innerText = "ĐỔI THẺ NGAY";
+        spinnerBuyCard.classList.add('hidden');
+        btnSubmitBuyCard.disabled = false;
+        resetAllRecaptchas();
+      }
     };
 
     // Form Liên Hệ Support
