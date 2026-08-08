@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Mệnh giá thẻ không hợp lệ.' });
   }
 
-  // 3. Xác minh reCAPTCHA (nếu có cấu hình)
+  // 3. Xác minh reCAPTCHA (nếu có)
   if (process.env.RECAPTCHA_SECRET_KEY) {
     if (!recaptchaToken) {
       return res.status(400).json({ error: 'Vui lòng xác minh reCAPTCHA trước khi đổi thẻ!' });
@@ -49,7 +49,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 4. Chạy Transaction: Kiểm tra số dư & Trừ tiền an toàn
+    // 4. Tìm 1 thẻ khả dụng trong kho card_warehouse
+    const cardsSnapshot = await db.collection('card_warehouse')
+      .where('network', '==', network.toUpperCase())
+      .where('amount', '==', cardAmount)
+      .where('isUsed', '==', false)
+      .limit(1)
+      .get();
+
+    if (cardsSnapshot.empty) {
+      return res.status(400).json({ error: `Rất tiếc, kho thẻ ${network.toUpperCase()} ${cardAmount.toLocaleString('vi-VN')} VNĐ tạm thời đã hết!` });
+    }
+
+    const availableCardDoc = cardsSnapshot.docs[0];
+    const cardRef = availableCardDoc.ref;
+    const cardData = availableCardDoc.data();
+
+    // 5. Chạy Transaction: Kiểm tra số dư, trừ tiền & đánh dấu thẻ đã dùng
     const result = await db.runTransaction(async (transaction) => {
       const userRef = db.collection('users').doc(uid);
       const userDoc = await transaction.get(userRef);
@@ -64,36 +80,45 @@ export default async function handler(req, res) {
         throw new Error(`Số dư không đủ! Số dư hiện tại: ${currentBalance.toLocaleString('vi-VN')} VNĐ.`);
       }
 
-      // Giả lập/Tạo dữ liệu Mã thẻ & Seri (Nếu tích hợp API đối tác đổi thẻ thật thì gọi HTTP Request tại đây)
-      const pinCode = Math.floor(100000000000 + Math.random() * 900000000000).toString();
-      const serialCode = '84' + Math.floor(1000000000 + Math.random() * 9000000000).toString();
+      // Kiểm tra lại thẻ trong kho lần nữa để tránh race-condition
+      const freshCardDoc = await transaction.get(cardRef);
+      if (!freshCardDoc.exists || freshCardDoc.data().isUsed) {
+        throw new Error('Thẻ này vừa có người mua, vui lòng thực hiện lại!');
+      }
 
       // Trừ tiền tài khoản người dùng
       transaction.update(userRef, {
         balance: admin.firestore.FieldValue.increment(-cardAmount)
       });
 
-      // Lưu lịch sử giao dịch mua thẻ vào collection 'transactions'
+      // Đánh dấu thẻ đã được sử dụng (Kích hoạt Realtime Notification tới Telegram Bot)
+      transaction.update(cardRef, {
+        isUsed: true,
+        usedAt: Date.now(),
+        usedBy: uid
+      });
+
+      // Lưu lịch sử giao dịch mua thẻ
       const txRef = db.collection('transactions').doc();
       transaction.set(txRef, {
         uid: uid,
         type: 'BUY_CARD',
         network: network.toUpperCase(),
         amount: cardAmount,
-        pin: pinCode,
-        serial: serialCode,
+        pin: cardData.pin,
+        serial: cardData.serial,
         status: 'SUCCESS',
         createdAt: Date.now()
       });
 
       return {
         newBalance: currentBalance - cardAmount,
-        pin: pinCode,
-        serial: serialCode
+        pin: cardData.pin,
+        serial: cardData.serial
       };
     });
 
-    // 5. Phản hồi thành công về Client
+    // 6. Phản hồi kết quả về Client
     return res.status(200).json({
       success: true,
       message: `Đổi thẻ ${network.toUpperCase()} ${cardAmount.toLocaleString('vi-VN')} VNĐ thành công!`,
@@ -109,7 +134,7 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('Lỗi buy-card:', err);
     const errorMessage = err.message || 'Lỗi xử lý phía Server';
-    const isClientError = ['không tồn tại', 'không đủ', 'không hợp lệ'].some(msg => errorMessage.includes(msg));
+    const isClientError = ['không tồn tại', 'không đủ', 'không hợp lệ', 'đã hết', 'vừa có người mua'].some(msg => errorMessage.includes(msg));
 
     return res.status(isClientError ? 400 : 500).json({
       error: errorMessage
