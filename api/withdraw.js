@@ -60,6 +60,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    let userEmail = '';
+
     // 4. Chạy Transaction: Kiểm tra số dư, trừ tiền & tạo lệnh rút
     const result = await db.runTransaction(async (transaction) => {
       const userRef = db.collection('users').doc(uid);
@@ -69,6 +71,7 @@ export default async function handler(req, res) {
         throw new Error('Tài khoản người dùng không tồn tại.');
       }
 
+      userEmail = userDoc.data().email || '';
       const currentBalance = userDoc.data().balance || 0;
 
       if (currentBalance < withdrawAmount) {
@@ -84,7 +87,7 @@ export default async function handler(req, res) {
       const withdrawRef = db.collection('withdraw_requests').doc();
       transaction.set(withdrawRef, {
         uid: uid,
-        email: userDoc.data().email || '',
+        email: userEmail,
         method: cleanMethod,
         account: cleanAccount,
         name: cleanName,
@@ -98,7 +101,35 @@ export default async function handler(req, res) {
       };
     });
 
-    // 5. Phản hồi kết quả về Client
+    // 5. Gửi thông báo tự động qua Telegram (nếu đã cài biến môi trường)
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+      try {
+        const teleMessage = 
+`🚨 *YÊU CẦU RÚT TIỀN MỚI* 🚨
+--------------------------------
+👤 *UID:* \`${uid}\`
+📧 *Email:* ${userEmail || 'Không có'}
+💰 *Số tiền:* ${withdrawAmount.toLocaleString('vi-VN')} VNĐ
+🏦 *Phương thức:* ${cleanMethod}
+💳 *Số tài khoản:* \`${cleanAccount}\`
+🏷️ *Tên chủ thẻ:* ${cleanName}
+⏰ *Thời gian:* ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`;
+
+        await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: process.env.TELEGRAM_CHAT_ID,
+            text: teleMessage,
+            parse_mode: 'Markdown'
+          })
+        });
+      } catch (teleErr) {
+        console.error('Lỗi gửi thông báo Telegram:', teleErr);
+      }
+    }
+
+    // 6. Phản hồi kết quả về Client
     return res.status(200).json({
       success: true,
       message: `Lệnh rút ${withdrawAmount.toLocaleString('vi-VN')} VNĐ đã được chuyển tới hệ thống thành công!`,
