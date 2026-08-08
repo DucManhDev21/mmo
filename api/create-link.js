@@ -1,62 +1,50 @@
+import admin from 'firebase-admin';
 import { db } from './init-firebase.js';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
 
-  const { recaptchaToken, uid } = req.body || {};
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Thiếu token xác thực!' });
+  }
 
-  // 1. Verify reCAPTCHA token với Google
-  if (process.env.RECAPTCHA_SECRET_KEY) {
-    if (!recaptchaToken) {
-      return res.status(400).json({ error: 'Thiếu xác minh reCAPTCHA' });
-    }
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
-    const captchaRes = await fetch(verifyUrl, { method: 'POST' });
-    const captchaData = await captchaRes.json();
-
-    if (!captchaData.success) {
-      return res.status(400).json({ error: 'Xác minh reCAPTCHA thất bại, vui lòng thử lại!' });
-    }
+  let uid = '';
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+    uid = decodedToken.uid;
+  } catch (err) {
+    return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ.' });
   }
 
   try {
-    if (!process.env.LINK4M_API_KEY) {
-      throw new Error('Thiếu biến môi trường LINK4M_API_KEY');
-    }
-
-    const token = crypto.randomBytes(16).toString('hex');
-    const expiresAt = Date.now() + 10 * 60 * 1000;
-
-    await db.collection('sessions').doc(token).set({
-      uid: uid || null,
-      used: false,
-      createdAt: Date.now(),
-      expiresAt: expiresAt
+    // Tạo token ngẫu nhiên 16 bytes (32 ký tự hex)
+    const sessionToken = crypto.randomBytes(16).toString('hex');
+    
+    // Lưu vào collection 'sessions'
+    await db.collection('sessions').add({
+      uid: uid,
+      token: sessionToken,
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    const destUrl = `https://nhanmathuong-nine.vercel.app/index.html?token=${token}`;
+    // Trả về link trang đích kèm token
+    const targetUrl = `https://nhanmathuong-nine.vercel.app/?token=${sessionToken}`;
 
-    const link4mRes = await fetch(
-      `https://link4m.co/api-shorten/v2?api=${process.env.LINK4M_API_KEY}&url=${encodeURIComponent(destUrl)}`
-    );
-
-    if (!link4mRes.ok) throw new Error(`Link4m API lỗi: ${link4mRes.status}`);
-
-    const data = await link4mRes.json();
-    const shortUrl = data.shortenedUrl || data.url || data.shortened_url;
-
-    if (!shortUrl) throw new Error('Không nhận được link rút gọn từ Link4m');
-
-    return res.status(200).json({ url: shortUrl });
+    return res.status(200).json({
+      success: true,
+      link: targetUrl
+    });
 
   } catch (err) {
     console.error('Lỗi create-link:', err);
-    return res.status(500).json({ error: 'Lỗi Server', message: err.message });
+    return res.status(500).json({ error: 'Không thể tạo liên kết lúc này.' });
   }
 }

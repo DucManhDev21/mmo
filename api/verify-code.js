@@ -2,100 +2,84 @@ import admin from 'firebase-admin';
 import { db } from './init-firebase.js';
 
 export default async function handler(req, res) {
-  // 1. Cấu hình CORS Header
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Thiếu token xác thực!' });
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed. Hãy dùng phương thức POST.' });
+  let uid = '';
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+    uid = decodedToken.uid;
+  } catch (err) {
+    return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ.' });
   }
 
-  const { code, uid } = req.body || {};
+  const { code } = req.body || {};
+  const cleanCode = code?.trim();
 
-  if (!code) {
-    return res.status(400).json({ error: 'Vui lòng nhập mã xác nhận từ trang đích!' });
-  }
-  if (!uid) {
-    return res.status(400).json({ error: 'Thiếu thông tin tài khoản (UID). Vui lòng đăng nhập lại.' });
+  if (!cleanCode) {
+    return res.status(400).json({ error: 'Vui lòng nhập mã xác nhận.' });
   }
 
   try {
-    const cleanCode = code.trim().toUpperCase();
-    const rewardAmount = 200; // Thưởng 200 VNĐ mỗi lần vượt link thành công
+    const result = await db.runTransaction(async (transaction) => {
+      // Tìm mã code trong collection 'codes'
+      const codesRef = db.collection('codes');
+      const codeQuery = await transaction.get(codesRef.where('code', '==', cleanCode).limit(1));
 
-    // 2. Sử dụng Transaction để chống Race-Condition (ngăn spam request xác thực cùng 1 mã)
-    const newBalance = await db.runTransaction(async (transaction) => {
-      const codeRef = db.collection('codes').doc(cleanCode);
-      const userRef = db.collection('users').doc(uid);
-
-      const codeDoc = await transaction.get(codeRef);
-      const userDoc = await transaction.get(userRef);
-
-      // Kiểm tra sự tồn tại của mã
-      if (!codeDoc.exists) {
-        throw new Error('Mã không tồn tại trên hệ thống!');
+      if (codeQuery.empty) {
+        throw new Error('Mã xác nhận không tồn tại hoặc không hợp lệ.');
       }
 
+      const codeDoc = codeQuery.docs[0];
       const codeData = codeDoc.data();
 
-      // Kiểm tra xem mã đã dùng chưa
-      if (codeData.isUsed) {
-        throw new Error('Mã này đã được sử dụng trước đó rồi!');
+      // Kiểm tra trạng thái mã (chỉ nhận mã chưa sử dụng)
+      if (codeData.status !== 'unused' && codeData.status !== 'pending') {
+        throw new Error('Mã xác nhận này đã được sử dụng hoặc hết hạn.');
       }
 
-      // Kiểm tra thời hạn mã
-      if (codeData.expiresAt && Date.now() > codeData.expiresAt) {
-        throw new Error('Mã xác nhận đã hết hạn sử dụng!');
-      }
+      const rewardAmount = codeData.reward || 1000; // Tiền thưởng mặc định nếu không set sẵn
 
-      // Kiểm tra sự tồn tại của user
-      if (!userDoc.exists) {
-        throw new Error('Tài khoản người dùng không tồn tại trên hệ thống.');
-      }
-
-      const currentBalance = userDoc.data().balance || 0;
-      const updatedBalance = currentBalance + rewardAmount;
-
-      // Đánh dấu mã đã dùng
-      transaction.update(codeRef, { 
-        isUsed: true, 
-        usedBy: uid, 
-        usedAt: Date.now() 
+      // Cập nhật trạng thái code thành đã sử dụng
+      transaction.update(codeDoc.ref, {
+        status: 'used',
+        usedBy: uid,
+        usedAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
-      // Tăng số dư tài khoản an toàn tuyệt đối bằng FieldValue.increment
-      transaction.update(userRef, { 
-        balance: admin.firestore.FieldValue.increment(rewardAmount) 
+      // Cộng tiền cho user
+      const userRef = db.collection('users').doc(uid);
+      const userDoc = await transaction.get(userRef);
+      const currentBalance = userDoc.exists ? (userDoc.data().balance || 0) : 0;
+      
+      transaction.update(userRef, {
+        balance: admin.firestore.FieldValue.increment(rewardAmount)
       });
 
-      return updatedBalance;
+      return {
+        reward: rewardAmount,
+        newBalance: currentBalance + rewardAmount
+      };
     });
 
-    return res.status(200).json({ 
-      success: true, 
-      message: `Xác nhận mã thành công! Đã cộng +${rewardAmount} VNĐ vào ví.`,
-      newBalance: newBalance
+    return res.status(200).json({
+      success: true,
+      message: `Xác minh thành công! Bạn nhận được ${result.reward.toLocaleString()} VNĐ.`,
+      newBalance: result.newBalance
     });
 
   } catch (err) {
-    console.error('Lỗi xác minh mã:', err);
-
-    // Xử lý thông báo lỗi từ Transaction
-    const errorMessage = err.message || 'Lỗi xử lý phía Server';
-    const isClientError = [
-      'Mã không tồn tại',
-      'đã được sử dụng',
-      'đã hết hạn',
-      'Tài khoản người dùng không tồn tại'
-    ].some(msg => errorMessage.includes(msg));
-
-    return res.status(isClientError ? 400 : 500).json({ 
-      error: errorMessage 
-    });
+    console.error('Lỗi verify-code:', err);
+    const isClientError = ['không tồn tại', 'đã được sử dụng', 'không hợp lệ'].some(msg => err.message.includes(msg));
+    return res.status(isClientError ? 400 : 500).json({ error: err.message || 'Lỗi xử lý xác minh.' });
   }
 }
