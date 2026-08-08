@@ -201,371 +201,6 @@
               <i class="fa-solid fa-power-off"></i>
             </button>
           </div>
-          <button id="btnOpenAuth" class="hidden bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-600/30 transition duration-300 hover:scale-105">
-            <i class="fa-solid fa-right-to-bracket mr-2"></i>Đăng Nhập
-          </button>
-        </div>
-
-        <!-- Mobile Menu Trigger -->
-        <button id="btnMobileMenu" class="lg:hidden text-slate-300 hover:text-white p-2">
-          <i class="fa-solid fa-bars-staggered text-2xl"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile Navigation -->
-    <div id="mobileMenu" class="hidden lg:hidden glass-panel border-t border-slate-800 px-4 pt-3 pb-6 space-y-2 absolute w-full left-0 origin-top animate-fade-in-down">
-      <button onclick="navigateTo('/gioithieu')" class="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10"><i class="fa-solid fa-house mr-2 w-5"></i>Trang Chủ</button>
-      <button onclick="navigateTo('/nhiemvu')" class="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10"><i class="fa-solid fa-list-check mr-2 w-5"></i>Nhiệm Vụ</button>
-      <button onclick="navigateTo('/ruttien')" class="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10"><i class="fa-solid fa-wallet mr-2 w-5"></i>Rút Tiền</button>
-      <button onclick="navigateTo('/lienhe')" class="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10"><i class="fa-solid fa-headset mr-2 w-5"></i>Liên Hệ</button>
-      <button onclick="navigateTo('/taikhoan')" class="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/10 text-amber-400"><i class="fa-solid fa-user-shield mr-2 w-5"></i>Tài Khoản</button>
-      <div class="pt-3 border-t border-slate-800">
-        <button id="btnOpenAuthMobile" class="hidden w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-bold py-3 rounded-xl">
-          Đăng Nhập / Đăng Ký
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
-
-    <!-- TAB 1: HERO SECTION & GIỚI THIỆU -->
-    <section id="tab-intro" class="tab-content space-y-20">
-      
-      <!-- Hero Banner -->
-      <div class="text-center space-y-8 max-w-4xl mx-auto pt-8">
-        <div data-aos="fade-down" data-aos-duration="1000">
-          <span class="inline-flex items-center px-5 py-2 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 shadow-inner">
-            <i class="fa-solid fa-rocket text-cyan-400 mr-2 animate-bounce"></i> Nền Tảng Vượt Link Kiếm Tiền Hàng Đầu
-          </span>
-        </div>
-        <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white leading-tight" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="100">
-          Vượt Link Nhanh Chóng <br>
-          <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent neon-text-cyan">Kiếm Tiền Liền Tay</span>
-        </h1>
-        <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto font-medium" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-          Biến mỗi giây phút lướt web thành thu nhập thực tế. Hệ thống tự động hóa 100%, tích lũy ngay +200₫ cho mỗi lượt hoàn thành nhiệm vụ vượt link xác minh!
-        </p>
-        <div class="flex flex-wrap justify-center gap-4 pt-6" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
-          <button onclick="handleStartTaskCTA()" class="btn-glow bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:scale-105 text-white font-bold px-10 py-4 rounded-2xl shadow-xl transition-transform duration-300 flex items-center space-x-3">
-            <span>Bắt Đầu Kiếm Tiền</span>
-            <i class="fa-solid fa-arrow-right"></i>
-          </button>
-          <button onclick="navigateTo('/ruttien')" class="glass-panel hover:bg-white/10 text-slate-200 font-bold px-8 py-4 rounded-2xl border border-white/10 transition duration-300">
-            <i class="fa-solid fa-wallet mr-2 text-cyan-400"></i>Xem Ví Thưởng
-          </button>
-        </div>
-      </div>
-
-      <!-- Đoạn văn giới thiệu chi tiết -->
-      <div class="glass-panel p-8 sm:p-12 rounded-[2.5rem] space-y-10 border border-cyan-500/20" data-aos="fade-up" data-aos-duration="1000">
-        <div class="border-b border-slate-800 pb-6 text-center md:text-left">
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-white flex items-center justify-center md:justify-start">
-            <i class="fa-solid fa-fire text-orange-500 mr-4"></i> Cơ Chế Hoạt Động & Uy Tín
-          </h2>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-10 text-slate-300 text-sm sm:text-base leading-relaxed">
-          <div class="space-y-6">
-            <div class="flex items-start space-x-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/50">
-              <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 font-black text-lg">1</div>
-              <p>
-                <strong class="text-white block mb-1 text-lg">Nhiệm Vụ Dễ Dàng:</strong> Chỉ cần lấy link nhiệm vụ, vượt qua các bước xác minh đơn giản từ các đối tác rút gọn link uy tín và nhận mã thưởng bí mật.
-              </p>
-            </div>
-            <div class="flex items-start space-x-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/50">
-              <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 font-black text-lg">2</div>
-              <p>
-                <strong class="text-white block mb-1 text-lg">Cộng Tiền Tự Động:</strong> Hệ thống lưu trữ dữ liệu bằng Firebase Firestore. Ngay khi mã xác nhận đúng, tài khoản của bạn được cộng trực tiếp +200₫ không độ trễ.
-              </p>
-            </div>
-          </div>
-
-          <div class="space-y-6">
-            <div class="flex items-start space-x-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/50">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 font-black text-lg">3</div>
-              <p>
-                <strong class="text-white block mb-1 text-lg">Rút Tiền Siêu Thấp:</strong> Min rút chỉ từ <strong class="text-emerald-400">10.000 VNĐ</strong>. Hỗ trợ chuyển khoản Ngân hàng, MoMo, Đổi thẻ cào hoặc USDT.
-              </p>
-            </div>
-            <div class="flex items-start space-x-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/50">
-              <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-black text-lg">4</div>
-              <p>
-                <strong class="text-white block mb-1 text-lg">Không Giới Hạn:</strong> Làm bao nhiêu hưởng bấy nhiêu. Bạn có thể làm nhiệm vụ liên tục mỗi ngày, không giới hạn số lượt hay thu nhập tối đa.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feature Cards -->
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="glass-panel p-8 rounded-3xl space-y-5 glass-card-hover text-center" data-aos="zoom-in" data-aos-delay="100">
-          <div class="w-16 h-16 mx-auto rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-3xl">
-            <i class="fa-solid fa-shield-halved"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white">Lưu Trữ Đám Mây</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Dữ liệu được lưu trữ bảo mật trên Firebase, đăng nhập thiết bị nào cũng không mất tiền.</p>
-        </div>
-
-        <div class="glass-panel p-8 rounded-3xl space-y-5 glass-card-hover text-center" data-aos="zoom-in" data-aos-delay="200">
-          <div class="w-16 h-16 mx-auto rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-3xl">
-            <i class="fa-solid fa-bolt-lightning"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white">Xử Lý Tốc Độ Bàn Thờ</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Thuật toán API cực nhẹ, check mã thưởng chuẩn xác 100% trong chưa tới 1 giây.</p>
-        </div>
-
-        <div class="glass-panel p-8 rounded-3xl space-y-5 glass-card-hover text-center" data-aos="zoom-in" data-aos-delay="300">
-          <div class="w-16 h-16 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-3xl">
-            <i class="fa-solid fa-money-bill-transfer"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white">Thanh Toán Minh Bạch</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Lệnh rút tiền được duyệt nhanh chóng 24/7. Uy tín 100% với cộng đồng hàng ngàn member.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 2: MỤC NHIỆM VỤ (TASK SECTION) -->
-    <section id="tab-tasks" class="tab-content hidden-tab space-y-12 max-w-5xl mx-auto">
-      <div class="text-center space-y-3" data-aos="fade-down">
-        <span class="text-cyan-400 font-bold tracking-widest uppercase text-sm">Offerwalls</span>
-        <h2 class="text-4xl font-black text-white">Bảng Nhiệm Vụ Kiếm Tiền</h2>
-        <p class="text-slate-400 text-base">Hoàn thành các nhiệm vụ bên dưới để tích lũy tiền vào ví</p>
-      </div>
-
-      <!-- MAIN ENGINE: CỔNG NHIỆM VỤ RÚT GỌN LINK (+200đ) -->
-      <div class="glass-panel p-6 sm:p-10 rounded-[2rem] space-y-8 border border-cyan-500/30 neon-box-glow relative overflow-hidden" data-aos="zoom-in" data-aos-duration="800">
-        <!-- Decor element -->
-        <div class="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-6 gap-4">
-          <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
-              <i class="fa-solid fa-link text-xl"></i>
-            </div>
-            <div>
-              <h3 class="font-black text-white text-xl">Nhiệm Vụ Vượt Link 1S</h3>
-              <p class="text-sm text-cyan-300 mt-1">Nhận ngay <strong class="text-emerald-400 text-lg">+200₫</strong> / lượt hoàn tất</p>
-            </div>
-          </div>
-          <span class="px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500Chào bạn, tôi đã phân tích và tiến hành khắc phục triệt để 3 vấn đề logic và bảo mật mà bạn đã nêu. 
-
-Dưới đây là các thay đổi chính đã được thực hiện:
-*   **Vấn đề 1 (Đổi thẻ cào):** Đã xóa bỏ toàn bộ logic gọi `query`, `getDocs`, và `writeBatch` trực tiếp vào `card_warehouse` từ phía Client[cite: 1]. Thay vào đó, Form sẽ gọi lệnh `fetch('/api/buy-card', ...)` để Backend xử lý an toàn.
-*   **Vấn đề 2 (Rút tiền):** Đã xóa bỏ lệnh trừ tiền ảo phía Client[cite: 1]. Cập nhật Form Rút tiền gọi `fetch('/api/withdraw', ...)` và viết thêm file API Backend `withdraw.js`.
-*   **Vấn đề 3 (Bảo mật số dư):** Đã xóa hoàn toàn hàm `window.updateBalanceInDB` và các lệnh `updateDoc` ghi đè số dư từ phía Client (bao gồm cả trong phần điểm danh) để ngăn chặn việc người dùng F12 tự cộng tiền[cite: 1]. Mọi thay đổi số dư giờ đây đều phải dựa vào kết quả trả về từ API.
-
-Dưới đây là toàn bộ code không cắt bớt.
-
-### 1. File `index.html` (Đã sửa lỗi hoàn chỉnh)
-
-```html
-<!DOCTYPE html>
-<html lang="vi" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TDM Rewards - Cổng Kiếm Tiền Online & Vượt Link Đổi Thưởng</title>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  
-  <!-- FontAwesome 6 Icons CDN -->
-  <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css)">
-  
-  <!-- AOS (Animate On Scroll) Library -->
-  <link href="[https://unpkg.com/aos@2.3.1/dist/aos.css](https://unpkg.com/aos@2.3.1/dist/aos.css)" rel="stylesheet">
-  <script src="[https://unpkg.com/aos@2.3.1/dist/aos.js](https://unpkg.com/aos@2.3.1/dist/aos.js)"></script>
-
-  <!-- Google reCAPTCHA v2 (Sử dụng explicit render để kiểm soát hoàn toàn) -->
-  <script src="[https://www.google.com/recaptcha/api.js?render=explicit](https://www.google.com/recaptcha/api.js?render=explicit)" async defer></script>
-
-  <!-- Custom Styles for Glassmorphism & Neon Glow -->
-  <style>
-    body {
-      background-color: #030712;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.25) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.25) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.2) 0px, transparent 50%);
-      background-attachment: fixed;
-    }
-
-    .glass-panel {
-      background: rgba(17, 24, 39, 0.6);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    .glass-nav {
-      background: rgba(3, 7, 18, 0.85);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .glass-card-hover {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .glass-card-hover:hover {
-      border-color: rgba(6, 182, 212, 0.5);
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 15px 35px -10px rgba(6, 182, 212, 0.4);
-    }
-
-    .glass-input {
-      background: rgba(3, 7, 18, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #ffffff;
-      transition: all 0.3s ease;
-    }
-    .glass-input:focus {
-      border-color: #06b6d4;
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
-      outline: none;
-    }
-
-    .neon-text-cyan {
-      text-shadow: 0 0 15px rgba(6, 182, 212, 0.6), 0 0 30px rgba(6, 182, 212, 0.3);
-    }
-    .neon-box-glow {
-      box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(168, 85, 247, 0.3); transform: scale(1); }
-      50% { box-shadow: 0 0 35px rgba(6, 182, 212, 0.9), 0 0 60px rgba(168, 85, 247, 0.6); transform: scale(1.03); }
-    }
-    .btn-glow {
-      animation: pulseGlow 2.5s infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
-    .floating-icon {
-      animation: float 4s ease-in-out infinite;
-    }
-
-    .tab-content {
-      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-    }
-    .tab-content.hidden-tab {
-      display: none;
-      opacity: 0;
-      transform: translateY(20px) scale(0.98);
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #030712;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #374151;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #06b6d4;
-    }
-
-    /* CSS FIX reCAPTCHA TRÀN VIỀN TRONG MODAL */
-    .captcha-scale-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      overflow: hidden;
-    }
-    .captcha-scale {
-      transform: scale(0.85); /* Thu nhỏ nhẹ trên mobile để không bị cắt xén */
-      transform-origin: center center;
-    }
-    @media (min-width: 400px) {
-      .captcha-scale {
-        transform: scale(1);
-      }
-    }
-  </style>
-</head>
-
-<body class="text-slate-100 font-sans min-h-screen relative overflow-x-hidden selection:bg-cyan-600 selection:text-white">
-
-  <!-- Ambient Orbs -->
-  <div class="fixed top-[-15%] left-[-10%] w-[600px] h-[600px] bg-purple-700/20 rounded-full blur-[150px] pointer-events-none z-[-1]"></div>
-  <div class="fixed bottom-[-15%] right-[-10%] w-[600px] h-[600px] bg-cyan-600/20 rounded-full blur-[150px] pointer-events-none z-[-1]"></div>
-  <div class="fixed top-[30%] left-[40%] w-[500px] h-[500px] bg-pink-600/15 rounded-full blur-[180px] pointer-events-none z-[-1]"></div>
-
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed top-24 right-5 z-50 flex flex-col space-y-3 pointer-events-none"></div>
-
-  <!-- GLOBAL RECAPTCHA MODAL (Ẩn mặc định) -->
-  <div id="globalCaptchaModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/90 backdrop-blur-md transition-opacity">
-    <div class="glass-panel w-[90%] max-w-sm p-6 sm:p-8 rounded-[2rem] flex flex-col items-center space-y-5 border border-cyan-500/50 shadow-2xl shadow-cyan-500/20 animate-fade-in-down relative">
-      <div class="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-2">
-        <i class="fa-solid fa-shield-halved"></i>
-      </div>
-      <div class="text-center">
-        <h3 class="text-white font-black text-xl mb-1">Xác Thực Bảo Mật</h3>
-        <p class="text-slate-400 text-sm">Vui lòng chứng minh bạn không phải là robot để tiếp tục.</p>
-      </div>
-      
-      <!-- Container chứa Captcha, đã fix CSS chống tràn -->
-      <div class="captcha-scale-wrapper bg-black/30 p-3 rounded-2xl border border-slate-700/50 min-h-[90px]">
-        <div class="captcha-scale">
-          <div id="globalRecaptchaContainer"></div>
-        </div>
-      </div>
-      
-      <button type="button" id="btnCancelCaptcha" class="w-full mt-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors border border-slate-600">
-        Hủy Bỏ
-      </button>
-    </div>
-  </div>
-
-  <!-- 1. HEADER / NAVBAR -->
-  <header class="fixed top-0 left-0 right-0 z-40 glass-nav">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-        
-        <!-- Logo -->
-        <div class="flex items-center space-x-3 cursor-pointer group" onclick="navigateTo('/gioithieu')">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-500 to-purple-600 flex items-center justify-center text-white neon-box-glow group-hover:rotate-12 transition-transform duration-300">
-            <i class="fa-solid fa-sack-dollar text-xl floating-icon"></i>
-          </div>
-          <div>
-            <span class="font-black text-2xl tracking-wider bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent neon-text-cyan">TDM REWARDS</span>
-            <span class="block text-[10px] text-purple-400 font-semibold tracking-widest uppercase">Earn Money Portal</span>
-          </div>
-        </div>
-
-        <!-- Desktop Navigation -->
-        <nav class="hidden lg:flex items-center space-x-1">
-          <button onclick="navigateTo('/gioithieu')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold hover:text-cyan-400 hover:bg-white/5 transition duration-200"><i class="fa-solid fa-house mr-1.5"></i>Trang Chủ</button>
-          <button onclick="navigateTo('/nhiemvu')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold hover:text-purple-400 hover:bg-white/5 transition duration-200"><i class="fa-solid fa-list-check mr-1.5"></i>Nhiệm Vụ</button>
-          <button onclick="navigateTo('/ruttien')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold hover:text-emerald-400 hover:bg-white/5 transition duration-200"><i class="fa-solid fa-wallet mr-1.5"></i>Rút Tiền</button>
-          <button onclick="navigateTo('/lienhe')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold hover:text-pink-400 hover:bg-white/5 transition duration-200"><i class="fa-solid fa-headset mr-1.5"></i>Liên Hệ</button>
-          <button onclick="navigateTo('/taikhoan')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold hover:text-amber-400 hover:bg-white/5 transition duration-200"><i class="fa-solid fa-user-shield mr-1.5"></i>Tài Khoản</button>
-        </nav>
-
-        <!-- Auth Buttons (Desktop) -->
-        <div class="hidden md:flex items-center space-x-3">
-          <div id="userInfo" class="hidden items-center space-x-3 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-700/50">
-            <div class="w-9 h-9 rounded-xl bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-300">
-              <i class="fa-solid fa-user-astronaut"></i>
-            </div>
-            <span id="userEmail" class="text-xs text-cyan-300 font-mono px-2 truncate max-w-[120px]"></span>
-            <button id="btnLogout" class="text-xs bg-rose-600/80 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl transition duration-200">
-              <i class="fa-solid fa-power-off"></i>
-            </button>
-          </div>
           <!-- Đã thêm class hidden -->
           <button id="btnOpenAuth" class="hidden bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-600/30 transition duration-300 hover:scale-105">
             <i class="fa-solid fa-right-to-bracket mr-2"></i>Đăng Nhập
@@ -1007,7 +642,7 @@ Dưới đây là toàn bộ code không cắt bớt.
 
         <!-- Các Kênh Hỗ Trợ -->
         <div class="space-y-5" data-aos="fade-left">
-          <a href="[https://t.me/](https://t.me/)" target="_blank" class="glass-panel p-6 rounded-[1.5rem] flex items-center space-x-5 glass-card-hover block border border-slate-800">
+          <a href="https://t.me/" target="_blank" class="glass-panel p-6 rounded-[1.5rem] flex items-center space-x-5 glass-card-hover block border border-slate-800">
             <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-3xl border border-cyan-500/20">
               <i class="fa-brands fa-telegram"></i>
             </div>
@@ -1017,7 +652,7 @@ Dưới đây là toàn bộ code không cắt bớt.
             </div>
           </a>
 
-          <a href="[https://zalo.me/](https://zalo.me/)" target="_blank" class="glass-panel p-6 rounded-[1.5rem] flex items-center space-x-5 glass-card-hover block border border-slate-800">
+          <a href="https://zalo.me/" target="_blank" class="glass-panel p-6 rounded-[1.5rem] flex items-center space-x-5 glass-card-hover block border border-slate-800">
             <div class="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-3xl border border-blue-500/20">
               <i class="fa-solid fa-comments"></i>
             </div>
@@ -1086,21 +721,21 @@ Dưới đây là toàn bộ code không cắt bớt.
 
   <!-- FIREBASE SDK & APP LOGIC -->
   <script type="module">
-    import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js)";
-    import { getAnalytics } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js)";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword, 
       signInWithEmailAndPassword, 
       signOut, 
       onAuthStateChanged 
-    } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js)";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
       getFirestore, 
       doc, 
       setDoc, 
       getDoc 
-    } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js)";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // Cấu hình Firebase
     const firebaseConfig = {
