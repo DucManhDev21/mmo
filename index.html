@@ -15,8 +15,8 @@
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-  <!-- Google reCAPTCHA v2 -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- Google reCAPTCHA v2 (Sử dụng explicit render để kiểm soát hoàn toàn) -->
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
 
   <!-- Custom Styles for Glassmorphism & Neon Glow -->
   <style>
@@ -111,19 +111,20 @@
       background: #06b6d4;
     }
 
-    /* CSS FIX reCAPTCHA OVERFLOW */
-    .recaptcha-wrapper {
+    /* CSS FIX reCAPTCHA TRÀN VIỀN TRONG MODAL */
+    .captcha-scale-wrapper {
       display: flex;
       justify-content: center;
-      overflow: hidden;
+      align-items: center;
       width: 100%;
+      overflow: hidden;
     }
-    .recaptcha-scale {
-      transform: scale(0.85);
-      transform-origin: center;
+    .captcha-scale {
+      transform: scale(0.85); /* Thu nhỏ nhẹ trên mobile để không bị cắt xén */
+      transform-origin: center center;
     }
-    @media (min-width: 380px) {
-      .recaptcha-scale {
+    @media (min-width: 400px) {
+      .captcha-scale {
         transform: scale(1);
       }
     }
@@ -139,6 +140,30 @@
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed top-24 right-5 z-50 flex flex-col space-y-3 pointer-events-none"></div>
+
+  <!-- GLOBAL RECAPTCHA MODAL (Ẩn mặc định) -->
+  <div id="globalCaptchaModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/90 backdrop-blur-md transition-opacity">
+    <div class="glass-panel w-[90%] max-w-sm p-6 sm:p-8 rounded-[2rem] flex flex-col items-center space-y-5 border border-cyan-500/50 shadow-2xl shadow-cyan-500/20 animate-fade-in-down relative">
+      <div class="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-2">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div class="text-center">
+        <h3 class="text-white font-black text-xl mb-1">Xác Thực Bảo Mật</h3>
+        <p class="text-slate-400 text-sm">Vui lòng chứng minh bạn không phải là robot để tiếp tục.</p>
+      </div>
+      
+      <!-- Container chứa Captcha, đã fix CSS chống tràn -->
+      <div class="captcha-scale-wrapper bg-black/30 p-3 rounded-2xl border border-slate-700/50 min-h-[90px]">
+        <div class="captcha-scale">
+          <div id="globalRecaptchaContainer"></div>
+        </div>
+      </div>
+      
+      <button type="button" id="btnCancelCaptcha" class="w-full mt-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors border border-slate-600">
+        Hủy Bỏ
+      </button>
+    </div>
+  </div>
 
   <!-- 1. HEADER / NAVBAR -->
   <header class="fixed top-0 left-0 right-0 z-40 glass-nav">
@@ -336,16 +361,10 @@
           <div class="space-y-4 bg-slate-950/60 p-6 rounded-3xl border border-slate-800/80 shadow-inner hover:border-cyan-500/30 transition-colors">
             <span class="text-sm font-black text-cyan-400 uppercase tracking-widest flex items-center"><div class="w-2 h-2 bg-cyan-400 rounded-full mr-2"></div> Bước 1: Lấy Link</span>
             
-            <!-- reCAPTCHA Task -->
             <form id="formGetLink" class="space-y-4">
-              <!-- Đã fix CSS reCAPTCHA không tràn màn hình di động -->
-              <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
-                <div class="recaptcha-scale">
-                  <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
-                </div>
-              </div>
-              <button type="submit" id="btnGetLink" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 border border-slate-600">
-                1. Xác Minh & Lấy Link
+              <!-- Đã gỡ bỏ reCAPTCHA inline -->
+              <button type="submit" id="btnGetLink" class="w-full bg-slate-800 hover:bg-cyan-600 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 border border-slate-600 hover:border-cyan-500 flex items-center justify-center">
+                <i class="fa-solid fa-shield-cat mr-2"></i> Xác Minh & Lấy Link
               </button>
             </form>
 
@@ -490,13 +509,6 @@
               <input type="number" id="withdrawAmount" min="10000" step="1000" required placeholder="Ví dụ: 20000" class="w-full glass-input p-3.5 rounded-xl text-lg font-bold text-emerald-400">
             </div>
 
-            <!-- Fix CSS -->
-            <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
-              <div class="recaptcha-scale">
-                <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
-              </div>
-            </div>
-
             <button type="submit" id="btnSubmitWithdraw" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 text-lg">
               <span id="txtWithdraw">XÁC NHẬN RÚT</span>
               <i id="spinnerWithdraw" class="fa-solid fa-spinner fa-spin hidden"></i>
@@ -528,13 +540,6 @@
                 <option value="50000" class="bg-slate-900">50,000 VNĐ</option>
                 <option value="100000" class="bg-slate-900">100,000 VNĐ</option>
               </select>
-            </div>
-
-            <!-- Fix CSS -->
-            <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
-              <div class="recaptcha-scale">
-                <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
-              </div>
             </div>
 
             <button type="submit" id="btnSubmitBuyCard" class="w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white font-black py-4 rounded-xl shadow-lg shadow-cyan-600/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 text-lg">
@@ -664,11 +669,10 @@
 
   </main>
 
-  <!-- 6. MODAL ĐĂNG NHẬP / ĐĂNG KÝ (GLASSMORPHISM POPUP) -->
+  <!-- 6. MODAL ĐĂNG NHẬP / ĐĂNG KÝ -->
   <div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-opacity">
     <div class="glass-panel max-w-md w-full p-8 rounded-[2rem] space-y-6 relative border border-cyan-500/30 neon-box-glow animate-fade-in-down">
       
-      <!-- FIX: Thêm type="button" -->
       <button type="button" id="btnCloseAuth" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 bg-slate-800/50 rounded-full w-8 h-8 flex items-center justify-center">
         <i class="fa-solid fa-xmark"></i>
       </button>
@@ -678,13 +682,11 @@
         <p class="text-slate-400 text-sm mt-1">Đăng nhập để lưu trữ tiền của bạn</p>
       </div>
 
-      <!-- Switch Login/Register (FIX: Thêm type="button" để tránh nảy trang reload form) -->
       <div class="flex border-b border-slate-700 pb-0">
         <button type="button" id="tabLogin" class="flex-1 py-3 text-center text-sm font-black border-b-2 border-cyan-400 text-cyan-400 transition-colors">ĐĂNG NHẬP</button>
         <button type="button" id="tabRegister" class="flex-1 py-3 text-center text-sm font-black text-slate-500 border-b-2 border-transparent hover:text-slate-300 transition-colors">ĐĂNG KÝ</button>
       </div>
 
-      <!-- Auth Form -->
       <form id="authForm" class="space-y-5">
         <div>
           <label class="text-xs font-bold text-slate-300 block mb-2 uppercase">Địa chỉ Email</label>
@@ -698,12 +700,6 @@
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
             <input type="password" id="authPassword" required placeholder="••••••••" class="w-full glass-input pl-11 p-3.5 rounded-xl text-sm font-medium">
-          </div>
-        </div>
-
-        <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
-          <div class="recaptcha-scale">
-            <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
           </div>
         </div>
 
@@ -726,7 +722,6 @@
       signOut, 
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    // FIX: Import thêm collection, query, where, limit, getDocs, writeBatch cho tính năng Kho Thẻ
     import { 
       getFirestore, 
       doc, 
@@ -752,14 +747,13 @@
       measurementId: "G-ZSTHLC80X5"
     };
 
-    // Khởi tạo
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     // ==========================================
-    // KHỞI TẠO BIẾN TOÀN CỤC & ROUTER BỘ NHỚ
+    // BIẾN TOÀN CỤC & ROUTER BỘ NHỚ
     // ==========================================
     window.currentUser = null;
     window.currentBalance = 0;
@@ -771,14 +765,12 @@
     const accEmailEl = document.getElementById('accEmail');
     const accUidEl = document.getElementById('accUid');
     
-    // Cập nhật số dư trên UI
     function updateBalanceDisplay() {
       if (userBalanceDisplayEl) userBalanceDisplayEl.innerText = window.currentBalance.toLocaleString('vi-VN');
       if (accBalanceEl) accBalanceEl.innerText = window.currentBalance.toLocaleString('vi-VN');
     }
     window.updateBalanceDisplay = updateBalanceDisplay;
 
-    // Cập nhật số dư vào Firestore
     window.updateBalanceInDB = async function(amountToAdd) {
       if (!window.currentUser) return;
       window.currentBalance += amountToAdd;
@@ -792,13 +784,64 @@
       }
     };
 
-    // Helper Reset reCAPTCHA (Tránh lỗi expired widget)
-    function resetAllRecaptchas() {
-      if(typeof grecaptcha !== 'undefined' && grecaptcha.reset) {
-        const widgets = document.querySelectorAll('.g-recaptcha');
-        widgets.forEach((_, i) => grecaptcha.reset(i));
-      }
-    }
+    // ==========================================
+    // CƠ CHẾ GLOBAL CAPTCHA MODAL (PROMISE BASED)
+    // ==========================================
+    let globalCaptchaWidgetId = null;
+    let captchaResolve = null;
+    let captchaReject = null;
+
+    window.executeGlobalCaptcha = function() {
+      return new Promise((resolve, reject) => {
+        captchaResolve = resolve;
+        captchaReject = reject;
+
+        const modal = document.getElementById('globalCaptchaModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex'); // Bật modal
+
+        // Chờ 300ms để DOM hiển thị hoàn toàn, tránh lỗi Timeout & Overflow
+        setTimeout(() => {
+          if (globalCaptchaWidgetId === null) {
+            if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
+              globalCaptchaWidgetId = grecaptcha.render('globalRecaptchaContainer', {
+                'sitekey': '6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf',
+                'theme': 'dark', // Đồng bộ giao diện tối
+                'callback': function(token) {
+                  // Đóng modal lập tức
+                  modal.classList.add('hidden');
+                  modal.classList.remove('flex');
+                  
+                  if (captchaResolve) captchaResolve(token); // Trả về Token để chạy lệnh
+                  
+                  // Reset cho lần dùng tiếp theo
+                  setTimeout(() => grecaptcha.reset(globalCaptchaWidgetId), 500); 
+                },
+                'error-callback': function() {
+                  if (captchaReject) captchaReject(new Error("Lỗi kết nối reCAPTCHA."));
+                }
+              });
+            } else {
+              reject(new Error("reCAPTCHA script chưa được tải hoàn tất."));
+              modal.classList.add('hidden');
+              modal.classList.remove('flex');
+            }
+          } else {
+            // Đã render rồi thì chỉ cần reset lại form cũ
+            grecaptcha.reset(globalCaptchaWidgetId);
+          }
+        }, 300);
+      });
+    };
+
+    // Nút Hủy Captcha
+    document.getElementById('btnCancelCaptcha').onclick = function() {
+      const modal = document.getElementById('globalCaptchaModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      if (captchaReject) captchaReject(new Error("Bạn đã hủy thao tác xác minh."));
+    };
+
 
     // ==========================================
     // ROUTER SPA LOGIC
@@ -838,7 +881,6 @@
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // FIX: Tự động phục hồi link cũ nếu chuyển vào tab Nhiệm vụ
       if (path === '/nhiemvu') {
          checkAndRestoreActiveTask();
       }
@@ -932,9 +974,12 @@
       e.preventDefault();
       authError.innerText = "";
       
-      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
-      if(!recaptchaResponse) {
-        authError.innerText = "Vui lòng xác minh Captcha để tiếp tục!";
+      // Gọi Modal reCAPTCHA
+      let recaptchaResponse;
+      try {
+        recaptchaResponse = await window.executeGlobalCaptcha();
+      } catch (err) {
+        authError.innerText = err.message;
         return;
       }
 
@@ -960,10 +1005,8 @@
         }
         authModal.classList.add('hidden');
         authForm.reset();
-        resetAllRecaptchas();
       } catch (err) {
         authError.innerText = err.message.replace("Firebase: ", "");
-        resetAllRecaptchas();
       } finally {
         btnSubmitAuth.disabled = false;
         btnSubmitAuth.innerText = isLoginMode ? "XÁC NHẬN ĐĂNG NHẬP" : "TẠO TÀI KHOẢN MỚI";
@@ -1034,7 +1077,6 @@
     
     let taskTimerInterval;
 
-    // FIX: Bổ sung logic giữ Link và thời gian khi tải lại trang
     function checkAndRestoreActiveTask() {
       const activeTaskData = localStorage.getItem('activeTask');
       if (activeTaskData) {
@@ -1045,20 +1087,18 @@
             linkBox.classList.remove('hidden');
             step2Container.classList.remove('hidden');
             startTaskTimer(task.expireTime);
-            return true; // Trả về true nếu đang có task hoạt động
+            return true;
           } else {
-            localStorage.removeItem('activeTask'); // Hết hạn thì xóa
+            localStorage.removeItem('activeTask'); 
           }
         } catch(e) { localStorage.removeItem('activeTask'); }
       }
-      return false; // Trả về false nếu rảnh rỗi
+      return false; 
     }
 
-    // FIX: Hàm đếm ngược được nâng cấp nhận timestamp từ localStorage
     function startTaskTimer(existingExpireTime = null) {
       clearInterval(taskTimerInterval);
       const timerEl = document.getElementById('taskTimer');
-      
       let expireTime = existingExpireTime || (Date.now() + 30 * 60 * 1000);
       
       taskTimerInterval = setInterval(() => {
@@ -1079,30 +1119,30 @@
       }, 1000);
     }
 
-    // 1. Lấy Link Nhiệm Vụ (Yêu cầu reCAPTCHA)
+    // 1. Lấy Link Nhiệm Vụ 
     formGetLink.onsubmit = async (e) => {
       e.preventDefault();
       if (!window.checkAuthGuard?.()) return;
 
-      // FIX: Kiểm tra nếu người dùng đang có link chưa hết hạn thì khóa không cho lấy link mới
       if (checkAndRestoreActiveTask()) {
         window.showToast("Bạn đang có 1 nhiệm vụ chưa hoàn thành. Vui lòng hoàn thành trước!", "warning");
-        resetAllRecaptchas();
         return;
       }
 
-      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
-      if(!recaptchaResponse) {
-        window.showToast?.("Vui lòng xác minh Captcha trước khi lấy link!", "warning");
+      // Gọi Global Captcha Modal
+      let recaptchaResponse;
+      try {
+        recaptchaResponse = await window.executeGlobalCaptcha();
+      } catch (err) {
+        window.showToast(err.message, "warning");
         return;
       }
 
       const uid = window.currentUser?.uid;
-      btnGetLink.innerText = "Đang tạo link...";
+      btnGetLink.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tạo link...';
       btnGetLink.disabled = true;
 
       try {
-        // Gọi API tạo link (cần truyền token để backend verify)
         const response = await fetch('/api/create-link', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1114,14 +1154,13 @@
         if (response.ok && data.url) {
           shortUrl.textContent = data.url;
           linkBox.classList.remove('hidden');
-          step2Container.classList.remove('hidden'); // HIỆN BƯỚC 2
+          step2Container.classList.remove('hidden'); 
           
-          // FIX: Lưu Link và thời hạn vào localStorage
           const expireTime = Date.now() + 30 * 60 * 1000;
           localStorage.setItem('activeTask', JSON.stringify({ url: data.url, expireTime: expireTime }));
 
           window.showToast?.("Khởi tạo link nhiệm vụ thành công!", "success");
-          startTaskTimer(expireTime); // Bắt đầu đếm ngược 30 phút
+          startTaskTimer(expireTime);
           
         } else {
           throw new Error(data.message || data.error || "Không thể tạo link rút gọn.");
@@ -1130,9 +1169,8 @@
         console.error("Lỗi tạo link:", error);
         window.showToast?.("Lỗi: " + error.message, "warning");
       } finally {
-        btnGetLink.innerText = "1. Xác Minh & Lấy Link";
+        btnGetLink.innerHTML = '<i class="fa-solid fa-shield-cat mr-2"></i> Xác Minh & Lấy Link';
         btnGetLink.disabled = false;
-        resetAllRecaptchas(); // Xoá xác minh cũ
       }
     };
 
@@ -1186,7 +1224,6 @@
           window.currentBalance = data.newBalance;
           updateBalanceDisplay();
 
-          // FIX: Xoá task khỏi bộ nhớ khi thành công
           localStorage.removeItem('activeTask');
 
           statusMsg.className = "text-center text-sm font-bold text-emerald-400";
@@ -1194,7 +1231,6 @@
           inputCode.value = "";
           window.showToast?.("Xác thực mã thành công! +200 VNĐ", "success");
           
-          // Hoàn thành thì đóng bộ đếm & form
           clearInterval(taskTimerInterval);
           setTimeout(() => {
             step2Container.classList.add('hidden');
@@ -1247,17 +1283,11 @@
     };
 
     // ==========================================
-    // RÚT TIỀN NGÂN HÀNG (YÊU CẦU reCAPTCHA)
+    // RÚT TIỀN NGÂN HÀNG
     // ==========================================
     document.getElementById('formWithdraw').onsubmit = async (e) => {
       e.preventDefault();
       if (!window.checkAuthGuard()) return;
-
-      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
-      if(!recaptchaResponse) {
-        window.showToast("Vui lòng xác minh Captcha trước khi rút tiền!", "warning");
-        return;
-      }
 
       const amount = parseInt(document.getElementById('withdrawAmount').value, 10);
       if (isNaN(amount) || amount < 10000) {
@@ -1266,6 +1296,15 @@
       }
       if (amount > window.currentBalance) {
         window.showToast(`Số dư không đủ! Hiện có: ${window.currentBalance.toLocaleString('vi-VN')} VNĐ`, "warning");
+        return;
+      }
+
+      // Gọi Global Captcha Modal
+      let recaptchaResponse;
+      try {
+        recaptchaResponse = await window.executeGlobalCaptcha();
+      } catch (err) {
+        window.showToast(err.message, "warning");
         return;
       }
 
@@ -1278,7 +1317,7 @@
       btnSubmitWithdraw.disabled = true;
 
       try {
-        // [CẦN BACKEND] Gửi lệnh API ở đây, kèm token Captcha
+        // [CẦN BACKEND] Gửi lệnh API ở đây, kèm recaptchaResponse
         // await fetch('/api/withdraw', ...)
 
         await window.updateBalanceInDB(-amount);
@@ -1290,29 +1329,30 @@
         txtWithdraw.innerText = "XÁC NHẬN RÚT";
         spinnerWithdraw.classList.add('hidden');
         btnSubmitWithdraw.disabled = false;
-        resetAllRecaptchas();
       }
     };
 
     // ==========================================
-    // ĐỔI THẺ CÀO (GỌI TỪ KHO CARD_WAREHOUSE CỦA FIRESTORE)
+    // ĐỔI THẺ CÀO
     // ==========================================
     document.getElementById('formBuyCard').onsubmit = async (e) => {
       e.preventDefault();
       if (!window.checkAuthGuard()) return;
-
-      const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
-      if(!recaptchaResponse) {
-        window.showToast("Vui lòng xác minh Captcha để đổi thẻ!", "warning");
-        return;
-      }
 
       const network = document.getElementById('cardNetwork').value.toUpperCase();
       const amount = parseInt(document.getElementById('cardAmount').value, 10);
 
       if (amount > window.currentBalance) {
         window.showToast(`Số dư không đủ! Cần thêm ${(amount - window.currentBalance).toLocaleString('vi-VN')} VNĐ`, "warning");
-        resetAllRecaptchas();
+        return;
+      }
+
+      // Gọi Global Captcha Modal
+      let recaptchaResponse;
+      try {
+        recaptchaResponse = await window.executeGlobalCaptcha();
+      } catch (err) {
+        window.showToast(err.message, "warning");
         return;
       }
 
@@ -1325,7 +1365,6 @@
       btnSubmitBuyCard.disabled = true;
 
       try {
-        // FIX: Truy vấn trực tiếp vào kho để tìm thẻ chưa sử dụng
         const q = query(
           collection(db, "card_warehouse"),
           where("network", "==", network),
@@ -1341,13 +1380,10 @@
           return;
         }
 
-        // Lấy thẻ đầu tiên thỏa mãn
         const cardDoc = querySnapshot.docs[0];
         const cardData = cardDoc.data();
 
-        // Sử dụng writeBatch để thực hiện trừ tiền user & cập nhật thẻ thành true cùng 1 lúc (bảo toàn dữ liệu)
         const batch = writeBatch(db);
-        
         const userRef = doc(db, "users", window.currentUser.uid);
         const cardRef = doc(db, "card_warehouse", cardDoc.id);
 
@@ -1360,11 +1396,9 @@
 
         await batch.commit();
 
-        // Cập nhật lại số dư trên giao diện
         window.currentBalance -= amount;
         updateBalanceDisplay();
         
-        // Hiện thông tin thẻ thật từ database
         document.getElementById('resCardNetwork').innerText = network;
         document.getElementById('resCardAmount').innerText = amount.toLocaleString('vi-VN') + ' VNĐ';
         document.getElementById('resCardSerial').innerText = cardData.serial;
@@ -1381,7 +1415,6 @@
         txtBuyCard.innerText = "ĐỔI THẺ NGAY";
         spinnerBuyCard.classList.add('hidden');
         btnSubmitBuyCard.disabled = false;
-        resetAllRecaptchas();
       }
     };
 
