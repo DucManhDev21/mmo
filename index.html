@@ -110,6 +110,23 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #06b6d4;
     }
+
+    /* CSS FIX reCAPTCHA OVERFLOW */
+    .recaptcha-wrapper {
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+      width: 100%;
+    }
+    .recaptcha-scale {
+      transform: scale(0.85);
+      transform-origin: center;
+    }
+    @media (min-width: 380px) {
+      .recaptcha-scale {
+        transform: scale(1);
+      }
+    }
   </style>
 </head>
 
@@ -321,8 +338,11 @@
             
             <!-- reCAPTCHA Task -->
             <form id="formGetLink" class="space-y-4">
-              <div class="flex justify-center bg-black/30 p-2 rounded-xl">
-                <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+              <!-- Đã fix CSS reCAPTCHA không tràn màn hình di động -->
+              <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
+                <div class="recaptcha-scale">
+                  <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+                </div>
               </div>
               <button type="submit" id="btnGetLink" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 border border-slate-600">
                 1. Xác Minh & Lấy Link
@@ -470,8 +490,11 @@
               <input type="number" id="withdrawAmount" min="10000" step="1000" required placeholder="Ví dụ: 20000" class="w-full glass-input p-3.5 rounded-xl text-lg font-bold text-emerald-400">
             </div>
 
-            <div class="flex justify-center bg-black/30 p-2 rounded-xl">
-              <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+            <!-- Fix CSS -->
+            <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
+              <div class="recaptcha-scale">
+                <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+              </div>
             </div>
 
             <button type="submit" id="btnSubmitWithdraw" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 text-lg">
@@ -507,8 +530,11 @@
               </select>
             </div>
 
-            <div class="flex justify-center bg-black/30 p-2 rounded-xl">
-              <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+            <!-- Fix CSS -->
+            <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
+              <div class="recaptcha-scale">
+                <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+              </div>
             </div>
 
             <button type="submit" id="btnSubmitBuyCard" class="w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white font-black py-4 rounded-xl shadow-lg shadow-cyan-600/25 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 text-lg">
@@ -563,7 +589,7 @@
           </div>
         </div>
 
-        <button onclick="window.handleLogoutBtn()" class="bg-rose-600/80 hover:bg-rose-500 text-white font-bold px-8 py-3 rounded-xl transition duration-200 border border-rose-500/50 shadow-lg shadow-rose-600/20">
+        <button type="button" onclick="window.handleLogoutBtn()" class="bg-rose-600/80 hover:bg-rose-500 text-white font-bold px-8 py-3 rounded-xl transition duration-200 border border-rose-500/50 shadow-lg shadow-rose-600/20">
           <i class="fa-solid fa-power-off mr-2"></i>Đăng Xuất Tài Khoản
         </button>
       </div>
@@ -642,7 +668,8 @@
   <div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-opacity">
     <div class="glass-panel max-w-md w-full p-8 rounded-[2rem] space-y-6 relative border border-cyan-500/30 neon-box-glow animate-fade-in-down">
       
-      <button id="btnCloseAuth" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 bg-slate-800/50 rounded-full w-8 h-8 flex items-center justify-center">
+      <!-- FIX: Thêm type="button" -->
+      <button type="button" id="btnCloseAuth" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 bg-slate-800/50 rounded-full w-8 h-8 flex items-center justify-center">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
@@ -651,10 +678,10 @@
         <p class="text-slate-400 text-sm mt-1">Đăng nhập để lưu trữ tiền của bạn</p>
       </div>
 
-      <!-- Switch Login/Register -->
+      <!-- Switch Login/Register (FIX: Thêm type="button" để tránh nảy trang reload form) -->
       <div class="flex border-b border-slate-700 pb-0">
-        <button id="tabLogin" class="flex-1 py-3 text-center text-sm font-black border-b-2 border-cyan-400 text-cyan-400 transition-colors">ĐĂNG NHẬP</button>
-        <button id="tabRegister" class="flex-1 py-3 text-center text-sm font-black text-slate-500 border-b-2 border-transparent hover:text-slate-300 transition-colors">ĐĂNG KÝ</button>
+        <button type="button" id="tabLogin" class="flex-1 py-3 text-center text-sm font-black border-b-2 border-cyan-400 text-cyan-400 transition-colors">ĐĂNG NHẬP</button>
+        <button type="button" id="tabRegister" class="flex-1 py-3 text-center text-sm font-black text-slate-500 border-b-2 border-transparent hover:text-slate-300 transition-colors">ĐĂNG KÝ</button>
       </div>
 
       <!-- Auth Form -->
@@ -674,8 +701,10 @@
           </div>
         </div>
 
-        <div class="flex justify-center bg-black/30 p-2 rounded-xl">
-          <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+        <div class="bg-black/30 p-2 rounded-xl recaptcha-wrapper">
+          <div class="recaptcha-scale">
+            <div class="g-recaptcha" data-sitekey="6LeUUnktAAAAAN_9Uy_izSHmQaSCHay0zh2qIsGf"></div>
+          </div>
         </div>
 
         <button type="submit" id="btnSubmitAuth" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 rounded-xl shadow-lg shadow-cyan-600/30 transition-transform hover:scale-[1.02] text-sm tracking-wider uppercase mt-2">
@@ -688,7 +717,6 @@
 
   <!-- FIREBASE SDK & APP LOGIC -->
   <script type="module">
-    // Cập nhật Firebase SDK về phiên bản ổn định 10.12.0
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
     import { 
@@ -698,12 +726,19 @@
       signOut, 
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    // FIX: Import thêm collection, query, where, limit, getDocs, writeBatch cho tính năng Kho Thẻ
     import { 
       getFirestore, 
       doc, 
       setDoc, 
       getDoc, 
-      updateDoc 
+      updateDoc,
+      collection,
+      query,
+      where,
+      limit,
+      getDocs,
+      writeBatch
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // Cấu hình Firebase
@@ -802,6 +837,11 @@
         window.history.pushState({ path }, '', path);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // FIX: Tự động phục hồi link cũ nếu chuyển vào tab Nhiệm vụ
+      if (path === '/nhiemvu') {
+         checkAndRestoreActiveTask();
+      }
     };
 
     window.addEventListener('popstate', () => {
@@ -905,9 +945,6 @@
       btnSubmitAuth.innerText = "ĐANG XỬ LÝ...";
 
       try {
-        // [CẦN BACKEND] Đoạn này bạn có thể gọi API verify reCAPTCHA tại đây
-        // const vRes = await fetch('/api/verify-recaptcha', { method: 'POST', body: JSON.stringify({ token: recaptchaResponse }) }); ...
-
         if (isLoginMode) {
           await signInWithEmailAndPassword(auth, email, password);
           window.showToast("Đăng nhập thành công!", "success");
@@ -997,22 +1034,47 @@
     
     let taskTimerInterval;
 
-    function startTaskTimer() {
-      let timeLeft = 30 * 60; // 30 phút
-      const timerEl = document.getElementById('taskTimer');
+    // FIX: Bổ sung logic giữ Link và thời gian khi tải lại trang
+    function checkAndRestoreActiveTask() {
+      const activeTaskData = localStorage.getItem('activeTask');
+      if (activeTaskData) {
+        try {
+          const task = JSON.parse(activeTaskData);
+          if (task.expireTime > Date.now()) {
+            shortUrl.textContent = task.url;
+            linkBox.classList.remove('hidden');
+            step2Container.classList.remove('hidden');
+            startTaskTimer(task.expireTime);
+            return true; // Trả về true nếu đang có task hoạt động
+          } else {
+            localStorage.removeItem('activeTask'); // Hết hạn thì xóa
+          }
+        } catch(e) { localStorage.removeItem('activeTask'); }
+      }
+      return false; // Trả về false nếu rảnh rỗi
+    }
+
+    // FIX: Hàm đếm ngược được nâng cấp nhận timestamp từ localStorage
+    function startTaskTimer(existingExpireTime = null) {
       clearInterval(taskTimerInterval);
+      const timerEl = document.getElementById('taskTimer');
+      
+      let expireTime = existingExpireTime || (Date.now() + 30 * 60 * 1000);
       
       taskTimerInterval = setInterval(() => {
-        timeLeft--;
-        let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        let s = (timeLeft % 60).toString().padStart(2, '0');
-        timerEl.innerText = `${m}:${s}`;
+        let timeLeft = Math.floor((expireTime - Date.now()) / 1000);
         
         if(timeLeft <= 0) {
           clearInterval(taskTimerInterval);
+          localStorage.removeItem('activeTask');
           window.showToast("Link nhiệm vụ đã quá thời hạn 30 phút. Vui lòng lấy link mới!", "warning");
           step2Container.classList.add('hidden');
           linkBox.classList.add('hidden');
+          timerEl.innerText = "00:00";
+        } else {
+          let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+          let s = (timeLeft % 60).toString().padStart(2, '0');
+          timerEl.innerText = `${m}:${s}`;
         }
       }, 1000);
     }
@@ -1021,6 +1083,13 @@
     formGetLink.onsubmit = async (e) => {
       e.preventDefault();
       if (!window.checkAuthGuard?.()) return;
+
+      // FIX: Kiểm tra nếu người dùng đang có link chưa hết hạn thì khóa không cho lấy link mới
+      if (checkAndRestoreActiveTask()) {
+        window.showToast("Bạn đang có 1 nhiệm vụ chưa hoàn thành. Vui lòng hoàn thành trước!", "warning");
+        resetAllRecaptchas();
+        return;
+      }
 
       const recaptchaResponse = e.target.querySelector('.g-recaptcha-response').value;
       if(!recaptchaResponse) {
@@ -1047,8 +1116,12 @@
           linkBox.classList.remove('hidden');
           step2Container.classList.remove('hidden'); // HIỆN BƯỚC 2
           
+          // FIX: Lưu Link và thời hạn vào localStorage
+          const expireTime = Date.now() + 30 * 60 * 1000;
+          localStorage.setItem('activeTask', JSON.stringify({ url: data.url, expireTime: expireTime }));
+
           window.showToast?.("Khởi tạo link nhiệm vụ thành công!", "success");
-          startTaskTimer(); // Bắt đầu đếm ngược 30 phút
+          startTaskTimer(expireTime); // Bắt đầu đếm ngược 30 phút
           
         } else {
           throw new Error(data.message || data.error || "Không thể tạo link rút gọn.");
@@ -1112,6 +1185,9 @@
         if (response.ok && data.success) {
           window.currentBalance = data.newBalance;
           updateBalanceDisplay();
+
+          // FIX: Xoá task khỏi bộ nhớ khi thành công
+          localStorage.removeItem('activeTask');
 
           statusMsg.className = "text-center text-sm font-bold text-emerald-400";
           statusMsg.textContent = data.message || "Mã hợp lệ!";
@@ -1219,7 +1295,7 @@
     };
 
     // ==========================================
-    // ĐỔI THẺ CÀO (YÊU CẦU reCAPTCHA)
+    // ĐỔI THẺ CÀO (GỌI TỪ KHO CARD_WAREHOUSE CỦA FIRESTORE)
     // ==========================================
     document.getElementById('formBuyCard').onsubmit = async (e) => {
       e.preventDefault();
@@ -1231,11 +1307,12 @@
         return;
       }
 
-      const network = document.getElementById('cardNetwork').value;
+      const network = document.getElementById('cardNetwork').value.toUpperCase();
       const amount = parseInt(document.getElementById('cardAmount').value, 10);
 
       if (amount > window.currentBalance) {
         window.showToast(`Số dư không đủ! Cần thêm ${(amount - window.currentBalance).toLocaleString('vi-VN')} VNĐ`, "warning");
+        resetAllRecaptchas();
         return;
       }
 
@@ -1243,30 +1320,63 @@
       const spinnerBuyCard = document.getElementById('spinnerBuyCard');
       const btnSubmitBuyCard = document.getElementById('btnSubmitBuyCard');
 
-      txtBuyCard.innerText = "ĐANG XỬ LÝ...";
+      txtBuyCard.innerText = "ĐANG XUẤT THẺ...";
       spinnerBuyCard.classList.remove('hidden');
       btnSubmitBuyCard.disabled = true;
 
       try {
-        // [CẦN BACKEND] API xử lý đổi thẻ (Trừ tiền, lấy thẻ, báo admin)
-        // const response = await fetch('/api/buy-card', { body: JSON.stringify({ uid, network, amount, token: recaptchaResponse }) });
-        // const data = await response.json();
+        // FIX: Truy vấn trực tiếp vào kho để tìm thẻ chưa sử dụng
+        const q = query(
+          collection(db, "card_warehouse"),
+          where("network", "==", network),
+          where("amount", "==", amount),
+          where("isUsed", "==", false),
+          limit(1)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          window.showToast(`Kho hiện tại đã hết thẻ ${network} mệnh giá ${amount.toLocaleString('vi-VN')}đ. Xin chọn loại khác!`, "warning");
+          return;
+        }
+
+        // Lấy thẻ đầu tiên thỏa mãn
+        const cardDoc = querySnapshot.docs[0];
+        const cardData = cardDoc.data();
+
+        // Sử dụng writeBatch để thực hiện trừ tiền user & cập nhật thẻ thành true cùng 1 lúc (bảo toàn dữ liệu)
+        const batch = writeBatch(db);
         
-        // Mô phỏng Thành Công:
-        await window.updateBalanceInDB(-amount);
+        const userRef = doc(db, "users", window.currentUser.uid);
+        const cardRef = doc(db, "card_warehouse", cardDoc.id);
+
+        batch.update(userRef, { balance: window.currentBalance - amount });
+        batch.update(cardRef, { 
+          isUsed: true, 
+          usedBy: window.currentUser.uid, 
+          usedAt: new Date().toISOString() 
+        });
+
+        await batch.commit();
+
+        // Cập nhật lại số dư trên giao diện
+        window.currentBalance -= amount;
+        updateBalanceDisplay();
         
-        // Hiện dữ liệu thẻ cho User
+        // Hiện thông tin thẻ thật từ database
         document.getElementById('resCardNetwork').innerText = network;
         document.getElementById('resCardAmount').innerText = amount.toLocaleString('vi-VN') + ' VNĐ';
-        document.getElementById('resCardSerial').innerText = "1000" + Math.floor(Math.random() * 9999999999); // Fake Data
-        document.getElementById('resCardCode').innerText = "0" + Math.floor(Math.random() * 999999999999);    // Fake Data
+        document.getElementById('resCardSerial').innerText = cardData.serial;
+        document.getElementById('resCardCode').innerText = cardData.pin;
         
         document.getElementById('cardResultBox').classList.remove('hidden');
         window.showToast("Đổi thẻ thành công! Đã trừ " + amount.toLocaleString('vi-VN') + " VNĐ", "success");
         e.target.reset();
 
       } catch(err) {
-        window.showToast("Lỗi hệ thống hoặc kho hết thẻ. Vui lòng liên hệ Admin!", "warning");
+        console.error("Lỗi đổi thẻ:", err);
+        window.showToast("Lỗi hệ thống khi xuất thẻ. Vui lòng liên hệ Admin!", "warning");
       } finally {
         txtBuyCard.innerText = "ĐỔI THẺ NGAY";
         spinnerBuyCard.classList.add('hidden');
