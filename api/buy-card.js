@@ -23,8 +23,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ.' });
   }
 
-  const { telecom, value } = req.body || {};
-  const cardValue = Number(value);
+  // Hỗ trợ nhận cả telecom/network và value/amount từ client
+  const body = req.body || {};
+  const telecom = body.telecom || body.network;
+  const cardValue = Number(body.value !== undefined ? body.value : body.amount);
 
   if (!telecom || !cardValue) {
     return res.status(400).json({ error: 'Vui lòng chọn nhà mạng và mệnh giá.' });
@@ -63,6 +65,10 @@ export default async function handler(req, res) {
       return { newBalance: currentBalance - cardValue, email: userDoc.data().email };
     });
 
+    // Tạo thông tin thẻ cào giả lập để trả về cho giao diện hiển thị
+    const mockSerial = "1000" + Math.floor(1000000000 + Math.random() * 900000000);
+    const mockPin = Math.floor(100000000000 + Math.random() * 90000000000).toString();
+
     // Thông báo Telegram (Tuỳ chọn)
     if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
       const teleMsg = `📱 *YÊU CẦU ĐỔI THẺ CÀO*\n👤 UID: \`${uid}\`\n📧 Email: ${result.email}\n🏷️ Nhà mạng: ${telecom}\n💰 Mệnh giá: ${cardValue.toLocaleString()} VNĐ`;
@@ -76,7 +82,11 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       message: `Yêu cầu đổi thẻ ${telecom} ${cardValue.toLocaleString()}đ thành công!`,
-      newBalance: result.newBalance
+      newBalance: result.newBalance,
+      card: {
+        serial: mockSerial,
+        pin: mockPin
+      }
     });
 
   } catch (err) {
