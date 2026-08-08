@@ -48,11 +48,11 @@ export default async function handler(req, res) {
         throw new Error(`Số dư không đủ. Bạn cần ${cardValue.toLocaleString()} VNĐ.`);
       }
 
-      // 2. Tìm thẻ trong kho (collection: card_stock) còn trống
-      const stockQuery = db.collection('card_stock')
-        .where('telecom', '==', telecom)
-        .where('value', '==', String(cardValue)) // Đã sửa lỗi cú pháp và chuyển thành chuỗi để khớp Firestore
-        .where('status', '==', 'AVAILABLE')
+      // 2. Lấy thẻ từ `card_warehouse` (khớp hoàn toàn với lệnh /add của bot.js)[span_2](start_span)[span_2](end_span)
+      const stockQuery = db.collection('card_warehouse')
+        .where('network', '==', telecom.toUpperCase())
+        .where('amount', '==', cardValue)
+        .where('isUsed', '==', false)
         .limit(1);
 
       const stockSnapshot = await transaction.get(stockQuery);
@@ -68,14 +68,14 @@ export default async function handler(req, res) {
         balance: admin.firestore.FieldValue.increment(-cardValue)
       });
 
-      // 4. Cập nhật trạng thái thẻ trong kho thành 'SOLD' và gán cho người mua
+      // 4. Đánh dấu thẻ đã được dùng (kích hoạt onSnapshot trong bot.js tự động gửi thông báo cho Admin)[span_3](start_span)[span_3](end_span)
       transaction.update(cardDoc.ref, {
-        status: 'SOLD',
-        soldTo: uid,
-        soldAt: admin.firestore.FieldValue.serverTimestamp()
+        isUsed: true,
+        usedBy: uid,
+        usedAt: Date.now()
       });
 
-      // 5. Lưu lịch sử giao dịch mua thẻ
+      // 5. Lưu lịch sử giao dịch vào `card_requests`
       const requestRef = db.collection('card_requests').doc();
       transaction.set(requestRef, {
         uid: uid,
@@ -90,22 +90,12 @@ export default async function handler(req, res) {
 
       return { 
         newBalance: currentBalance - cardValue, 
-        email: userDoc.data().email,
         serial: cardData.serial,
         pin: cardData.pin
       };
     });
 
-    // Thông báo Telegram (Tuỳ chọn)
-    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
-      const teleMsg = `📱 *MUA THẺ CÀO THÀNH CÔNG*\n👤 UID: \`${uid}\`\n📧 Email: ${result.email}\n🏷️ Nhà mạng: ${telecom}\n💰 Mệnh giá: ${cardValue.toLocaleString()} VNĐ\n🔢 Seri: \`${result.serial}\`\n🔑 Mã thẻ: \`${result.pin}\``;
-      fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: process.env.TELEGRAM_CHAT_ID, text: teleMsg, parse_mode: 'Markdown' })
-      }).catch(console.error);
-    }
-
+    // Trả kết quả Seri và PIN về cho Frontend hiển thị
     return res.status(200).json({
       success: true,
       message: `Mua thẻ ${telecom} ${cardValue.toLocaleString()}đ thành công!`,
